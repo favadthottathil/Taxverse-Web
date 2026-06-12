@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import '../../../core/constants.dart';
+import '../../../core/motion.dart';
+import '../../widgets/scroll_visibility_detector.dart';
 
 class ApproachSection extends StatefulWidget {
-  const ApproachSection({super.key});
+  final bool animate;
+
+  const ApproachSection({super.key, this.animate = true});
 
   @override
   State<ApproachSection> createState() => _ApproachSectionState();
 }
 
 class _ApproachSectionState extends State<ApproachSection> {
-  bool _isVisible = false;
 
   static const _steps = [
     {
@@ -37,16 +39,7 @@ class _ApproachSectionState extends State<ApproachSection> {
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('approach-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() => _isVisible = true);
-        } else if (info.visibleFraction == 0 && _isVisible) {
-          setState(() => _isVisible = false);
-        }
-      },
-      child: Container(
+    return Container(
         color: const Color(0xFFF9F9FB),
         padding: const EdgeInsets.symmetric(vertical: 80),
         child: Center(
@@ -64,26 +57,19 @@ class _ApproachSectionState extends State<ApproachSection> {
                       children: [
                         // Left – text content
                         Expanded(
-                          child: _buildContent(context)
-                              .animate(target: _isVisible ? 1 : 0)
-                              .fade(duration: 600.ms)
-                              .slideX(
-                                begin: -0.1,
-                                end: 0,
-                                curve: Curves.easeOutCubic,
-                              ),
+                          child: _buildContent(context),
                         ),
                         const SizedBox(width: 64),
                         // Right – image
                         Expanded(
-                          child: _buildImage(context)
-                              .animate(target: _isVisible ? 1 : 0)
-                              .fade(delay: 200.ms, duration: 600.ms)
-                              .slideX(
-                                begin: 0.1,
-                                end: 0,
-                                curve: Curves.easeOutCubic,
-                              ),
+                          child: ScrollVisibilityDetector(
+                            detectorKey: const Key('approach-image-desktop-detector'),
+                            builder: (context, isVisible, child) {
+                              return child.riseFade(
+                                  isVisible: isVisible, delay: 200.ms);
+                            },
+                            child: _buildImage(context),
+                          ),
                         ),
                       ],
                     );
@@ -92,23 +78,16 @@ class _ApproachSectionState extends State<ApproachSection> {
                   // Mobile / Tablet – stacked
                   return Column(
                     children: [
-                      _buildContent(context)
-                          .animate(target: _isVisible ? 1 : 0)
-                          .fade(duration: 600.ms)
-                          .slideY(
-                            begin: 0.1,
-                            end: 0,
-                            curve: Curves.easeOutCubic,
-                          ),
+                      _buildContent(context),
                       const SizedBox(height: 48),
-                      _buildImage(context)
-                          .animate(target: _isVisible ? 1 : 0)
-                          .fade(delay: 200.ms, duration: 600.ms)
-                          .slideY(
-                            begin: 0.1,
-                            end: 0,
-                            curve: Curves.easeOutCubic,
-                          ),
+                      ScrollVisibilityDetector(
+                        detectorKey: const Key('approach-image-mobile-detector'),
+                        builder: (context, isVisible, child) {
+                          return child.riseFade(
+                              isVisible: isVisible, delay: 200.ms);
+                        },
+                        child: _buildImage(context),
+                      ),
                     ],
                   );
                 },
@@ -116,41 +95,50 @@ class _ApproachSectionState extends State<ApproachSection> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section label
-        Text(
-          'OUR APPROACH',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 2.0,
-          ),
-        ),
-        const SizedBox(height: 12),
-        // Heading
-        Text(
-          'How We Work With You',
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-            color: const Color(0xFF1A1A2E),
-            fontWeight: FontWeight.w800,
-            height: 1.2,
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Description
-        Text(
-          'Every engagement follows a structured methodology designed to deliver measurable outcomes and lasting partnerships.',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            height: 1.6,
-            color: Colors.grey[600],
-          ),
+        ScrollVisibilityDetector(
+          detectorKey: const Key('approach-header-detector'),
+          builder: (context, isVisible, child) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Section label
+                Text(
+                  'OUR APPROACH',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2.0,
+                      ),
+                ).riseFade(isVisible: isVisible),
+                const SizedBox(height: 12),
+                // Heading
+                Text(
+                  'How We Work With You',
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        color: const Color(0xFF1A1A2E),
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                      ),
+                ).riseFade(isVisible: isVisible, delay: 200.ms),
+                const SizedBox(height: 16),
+                // Description
+                Text(
+                  'Every engagement follows a structured methodology designed to deliver measurable outcomes and lasting partnerships.',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        height: 1.6,
+                        color: Colors.grey[600],
+                      ),
+                ).riseFade(isVisible: isVisible, delay: 400.ms),
+              ],
+            );
+          },
         ),
         const SizedBox(height: 36),
         // Steps
@@ -166,6 +154,7 @@ class _ApproachSectionState extends State<ApproachSection> {
               step['icon'] as IconData,
               step['title'] as String,
               step['desc'] as String,
+              index,
             ),
           );
         }),
@@ -178,48 +167,54 @@ class _ApproachSectionState extends State<ApproachSection> {
     IconData icon,
     String title,
     String description,
+    int index,
   ) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-              width: 1.5,
+    return ScrollVisibilityDetector(
+      detectorKey: Key('approach-step-$index'),
+      builder: (context, isVisible, child) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                  width: 1.5,
+                ),
+              ),
+              child: Icon(icon, size: 22, color: Theme.of(context).primaryColor),
             ),
-          ),
-          child: Icon(icon, size: 22, color: Theme.of(context).primaryColor),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
-                  fontSize: 16,
-                ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1A1A2E),
+                          fontSize: 16,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    description,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                          height: 1.5,
+                        ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        ).riseFade(isVisible: isVisible);
+      },
     );
   }
 

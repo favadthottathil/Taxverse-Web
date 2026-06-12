@@ -1,53 +1,72 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:visibility_detector/visibility_detector.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import '../../../core/constants.dart';
+import '../../../core/motion.dart';
 import '../../../core/theme.dart';
+import '../../widgets/consultation_dialog.dart';
+import '../../widgets/scroll_visibility_detector.dart';
 
 class HeroSection extends StatefulWidget {
   final VoidCallback? onServicesClick;
+  final ScrollController? scrollController;
+  final bool animate;
 
-  const HeroSection({super.key, this.onServicesClick});
+  const HeroSection({
+    super.key,
+    this.onServicesClick,
+    this.scrollController,
+    this.animate = true,
+  });
 
   @override
   State<HeroSection> createState() => _HeroSectionState();
 }
 
 class _HeroSectionState extends State<HeroSection> {
-  bool _isVisible = false;
+  double _scrollOffset = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.scrollController?.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    widget.scrollController?.removeListener(_onScroll);
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (widget.scrollController != null && widget.scrollController!.hasClients) {
+      final offset = widget.scrollController!.offset;
+      if (offset >= 0 && offset < MediaQuery.of(context).size.height) {
+        setState(() {
+          _scrollOffset = offset;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('hero-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() {
-            _isVisible = true;
-          });
-        } else if (info.visibleFraction == 0 && _isVisible) {
-          setState(() {
-            _isVisible = false;
-          });
-        }
-      },
-      child: Container(
+    return Container(
         width: double.infinity,
         constraints: BoxConstraints(
           minHeight: MediaQuery.of(context).size.height,
         ),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppTheme.backgroundColor,
           image: DecorationImage(
-            image: AssetImage(
+            image: const AssetImage(
               'assets/images/hero-bg.jpg',
             ),
             fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Color(0xEE012440),
+            alignment: Alignment(0, -1.0 + (_scrollOffset / 800).clamp(0.0, 2.0)),
+            colorFilter: const ColorFilter.mode(
+              Color(0xEE034A3C),
               BlendMode.darken,
             ),
           ),
@@ -56,6 +75,7 @@ class _HeroSectionState extends State<HeroSection> {
           builder: (context, sizingInformation) {
             double horizontalPadding = sizingInformation.isDesktop ? 0 : 24;
             double verticalPadding = sizingInformation.isDesktop ? 80 : 40;
+            double topPadding = verticalPadding + 80; // Space for the floating navbar
 
             return Center(
               child: ConstrainedBox(
@@ -65,35 +85,33 @@ class _HeroSectionState extends State<HeroSection> {
                       : AppConstants.desktopMaxWidth,
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: verticalPadding,
+                  padding: EdgeInsets.only(
+                    left: horizontalPadding,
+                    right: horizontalPadding,
+                    top: topPadding,
+                    bottom: verticalPadding,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: sizingInformation.isDesktop
-                        ? CrossAxisAlignment.start
-                        : CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                            'ESTABLISHED 2004',
-                            style: GoogleFonts.inter(
+                  child: ScrollVisibilityDetector(
+                    detectorKey: const Key('hero-content-detector'),
+                    builder: (context, isVisible, child) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: sizingInformation.isDesktop
+                            ? CrossAxisAlignment.start
+                            : CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'ESTABLISHED 2020',
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
                               color: AppTheme.accentColor,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 2.0,
                             ),
-                          )
-                          .animate(target: _isVisible ? 1 : 0)
-                          .fade(duration: 800.ms)
-                          .slideY(
-                            begin: 0.3,
-                            end: 0,
-                            duration: 800.ms,
-                            curve: Curves.easeOutCubic,
-                          ),
-                      const SizedBox(height: 12),
-                      Text.rich(
+                          ).riseFade(isVisible: isVisible),
+                          const SizedBox(height: 12),
+                          Text.rich(
                             TextSpan(
                               children: [
                                 const TextSpan(
@@ -101,7 +119,8 @@ class _HeroSectionState extends State<HeroSection> {
                                 ),
                                 TextSpan(
                                   text: 'Businesses',
-                                  style: GoogleFonts.inter(
+                                  style: TextStyle(
+                                    fontFamily: 'Metropolis',
                                     color: AppTheme.accentColor,
                                     fontStyle: FontStyle.italic,
                                   ),
@@ -111,158 +130,145 @@ class _HeroSectionState extends State<HeroSection> {
                             textAlign: sizingInformation.isDesktop
                                 ? TextAlign.left
                                 : TextAlign.center,
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
                               color: Colors.white,
                               fontSize: sizingInformation.isDesktop ? 50 : 34,
                               height: 1.1,
                               fontWeight: FontWeight.w800,
                             ),
-                          )
-                          .animate(target: _isVisible ? 1 : 0)
-                          .fade(delay: 100.ms, duration: 800.ms)
-                          .slideY(
-                            begin: 0.3,
-                            end: 0,
-                            duration: 800.ms,
-                            curve: Curves.easeOutCubic,
-                          ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: sizingInformation.isDesktop
-                            ? 700
-                            : double.infinity,
-                        child:
-                            Text(
-                                  'Professional accounting, tax advisory, and CFO services combining regulatory expertise with intelligent automation.',
-                                  textAlign: sizingInformation.isDesktop
-                                      ? TextAlign.left
-                                      : TextAlign.center,
-                                  style: GoogleFonts.inter(
-                                    color: Colors.white.withValues(alpha: 0.85),
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    height: 1.6,
-                                  ),
-                                )
-                                .animate(target: _isVisible ? 1 : 0)
-                                .fade(delay: 200.ms, duration: 800.ms)
-                                .slideY(
-                                  begin: 0.3,
-                                  end: 0,
-                                  duration: 800.ms,
-                                  curve: Curves.easeOutCubic,
+                          ).riseFade(isVisible: isVisible, delay: 200.ms),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width:
+                                sizingInformation.isDesktop ? 700 : double.infinity,
+                            child: Text(
+                              'Professional accounting, tax advisory, and CFO services combining regulatory expertise with intelligent automation.',
+                              textAlign: sizingInformation.isDesktop
+                                  ? TextAlign.left
+                                  : TextAlign.center,
+                              style: TextStyle(
+                                  fontFamily: 'Metropolis',
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 17,
+                                  height: 1.6,
                                 ),
-                      ),
-                      const SizedBox(height: 28),
-                      Row(
-                            mainAxisAlignment: sizingInformation.isDesktop
-                                ? MainAxisAlignment.start
-                                : MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: widget.onServicesClick,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.accentColor,
-                                  foregroundColor: AppTheme.primaryColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
+                              ).riseFade(isVisible: isVisible, delay: 400.ms),
+                            ),
+                            const SizedBox(height: 28),
+                            Flex(
+                              direction: sizingInformation.isMobile
+                                  ? Axis.vertical
+                                  : Axis.horizontal,
+                              mainAxisAlignment: sizingInformation.isDesktop
+                                  ? MainAxisAlignment.start
+                                  : MainAxisAlignment.center,
+                              crossAxisAlignment: sizingInformation.isMobile
+                                  ? CrossAxisAlignment.stretch
+                                  : CrossAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: widget.onServicesClick,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.accentColor,
+                                    foregroundColor: AppTheme.primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 20,
+                                    ),
+                                    textStyle: TextStyle(
+                                      fontFamily: 'Metropolis',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 32,
-                                    vertical: 20,
-                                  ),
-                                  textStyle: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  child: const Text('Explore Services'),
                                 ),
-                                child: const Text('Explore Services'),
-                              ),
-                              const SizedBox(width: 16),
-                              OutlinedButton(
-                                onPressed: () async {
-                                  final Uri emailLaunchUri = Uri(
-                                    scheme: 'mailto',
-                                    path: AppConstants.contactEmail,
-                                  );
-                                  launchUrl(emailLaunchUri);
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  side: const BorderSide(
-                                    color: Colors.white54,
-                                    width: 1,
+                                const SizedBox(height: 16, width: 16),
+                                OutlinedButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          const ConsultationDialog(),
+                                    );
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppTheme.accentColor,
+                                    side: const BorderSide(
+                                      color: AppTheme.accentColor,
+                                      width: 1,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 20,
+                                    ),
+                                    textStyle: TextStyle(
+                                      fontFamily: 'Metropolis',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 32,
-                                    vertical: 20,
-                                  ),
-                                  textStyle: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  child: const Text('Book a Consultation'),
                                 ),
-                                child: const Text('Book a Consultation'),
-                              ),
-                            ],
-                          )
-                          .animate(target: _isVisible ? 1 : 0)
-                          .fade(delay: 400.ms, duration: 800.ms)
-                          .slideY(
-                            begin: 0.3,
-                            end: 0,
-                            duration: 800.ms,
-                            curve: Curves.easeOutCubic,
-                          ),
-                      const SizedBox(height: 32),
-                      _buildStatsRow(sizingInformation.isMobile)
-                          .animate(target: _isVisible ? 1 : 0)
-                          .fade(delay: 600.ms, duration: 800.ms)
-                          .slideY(
-                            begin: 0.3,
-                            end: 0,
-                            duration: 800.ms,
-                            curve: Curves.easeOutCubic,
-                          ),
-                    ],
+                              ],
+                            ).riseFade(isVisible: isVisible, delay: 600.ms),
+                            const SizedBox(height: 32),
+                            ScrollVisibilityDetector(
+                              detectorKey: const Key('hero-stats-detector'),
+                              builder: (context, statsVisible, child) {
+                                return _buildStatsRow(
+                                  sizingInformation.isMobile,
+                                  statsVisible,
+                                ).riseFade(isVisible: statsVisible, delay: 200.ms);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
+              );
+            },
+          ),
+        );
   }
 
-  Widget _buildStatsRow(bool isMobile) {
+  Widget _buildStatsRow(bool isMobile, bool isVisible) {
     if (isMobile) {
       return Column(
         children: [
-          _buildStatItem(20, '+', 'Years of Excellence', false),
+          _buildStatItem(6, '+', 'Years of Excellence', false, isVisible, const Duration(milliseconds: 400)),
           const SizedBox(height: 24),
-          _buildStatItem(2000, '+', 'Clients Served', true),
+          _buildStatItem(2000, '+', 'Clients Served', true, isVisible, const Duration(milliseconds: 600)),
           const SizedBox(height: 24),
-          _buildStatItem(500, '+', 'Registrations', false),
+          _buildStatItem(500, '+', 'Registrations', false, isVisible, const Duration(milliseconds: 800)),
         ],
       );
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+    return Wrap(
+      spacing: 48,
+      runSpacing: 16,
+      alignment: WrapAlignment.start,
+      crossAxisAlignment: WrapCrossAlignment.start,
       children: [
-        _buildStatItem(20, '+', 'Years of Excellence', false),
-        const SizedBox(width: 64),
-        _buildStatItem(2000, '+', 'Clients Served', true),
-        const SizedBox(width: 64),
-        _buildStatItem(500, '+', 'Registrations', false),
+        _buildStatItem(6, '+', 'Years of Excellence', false, isVisible, const Duration(milliseconds: 400)),
+        _buildStatItem(2000, '+', 'Clients Served', true, isVisible, const Duration(milliseconds: 600)),
+        _buildStatItem(500, '+', 'Registrations', false, isVisible, const Duration(milliseconds: 800)),
       ],
     );
   }
 
-  Widget _buildStatItem(int targetValue, String suffix, String label, bool useComma) {
+  Widget _buildStatItem(
+      int targetValue, String suffix, String label, bool useComma, bool isVisible, Duration delay) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,7 +276,8 @@ class _HeroSectionState extends State<HeroSection> {
           targetValue: targetValue,
           suffix: suffix,
           useComma: useComma,
-          animate: _isVisible,
+          animate: isVisible,
+          delay: delay,
         ),
         Text(
           label,
@@ -287,12 +294,14 @@ class _CountUpText extends StatefulWidget {
   final String suffix;
   final bool useComma;
   final bool animate;
+  final Duration delay;
 
   const _CountUpText({
     required this.targetValue,
     required this.suffix,
     required this.useComma,
     required this.animate,
+    required this.delay,
   });
 
   @override
@@ -323,8 +332,7 @@ class _CountUpTextState extends State<_CountUpText>
     super.didUpdateWidget(oldWidget);
     if (widget.animate && !_hasAnimated) {
       _hasAnimated = true;
-      // Small delay so the fade/slide animation starts first
-      Future.delayed(const Duration(milliseconds: 700), () {
+      Future.delayed(widget.delay, () {
         if (mounted) _controller.forward();
       });
     } else if (!widget.animate) {
@@ -358,8 +366,7 @@ class _CountUpTextState extends State<_CountUpText>
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        final currentValue =
-            (_animation.value * widget.targetValue).round();
+        final currentValue = (_animation.value * widget.targetValue).round();
         return Text(
           '${_formatNumber(currentValue)}${widget.suffix}',
           style: const TextStyle(

@@ -1,39 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants.dart';
+import '../../../core/motion.dart';
 import '../../../core/theme.dart';
+import '../../widgets/scroll_visibility_detector.dart';
 
 class FooterSection extends StatefulWidget {
   final Function(String)? onNavigate;
+  final bool animate;
 
-  const FooterSection({super.key, this.onNavigate});
+  const FooterSection({
+    super.key,
+    this.onNavigate,
+    this.animate = true,
+  });
 
   @override
   State<FooterSection> createState() => _FooterSectionState();
 }
 
 class _FooterSectionState extends State<FooterSection> {
-  bool _isVisible = false;
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('footer-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() {
-            _isVisible = true;
-          });
-        } else if (info.visibleFraction == 0 && _isVisible) {
-          setState(() {
-            _isVisible = false;
-          });
-        }
-      },
-      child: Container(
+    return Container(
         color: Theme.of(context).brightness == Brightness.dark
             ? Theme.of(context).colorScheme.surface
             : AppTheme.primaryColor,
@@ -47,55 +39,48 @@ class _FooterSectionState extends State<FooterSection> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  ResponsiveBuilder(
-                    builder: (context, sizingInformation) {
-                      if (sizingInformation.isDesktop) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: _buildCompanyInfo(context)
-                                  .animate(target: _isVisible ? 1 : 0)
-                                  .fade(duration: 600.ms)
-                                  .slideY(begin: 0.1, end: 0),
-                            ),
-                            const SizedBox(width: 48),
-                            Expanded(
-                              child: _buildQuickLinks(context)
-                                  .animate(target: _isVisible ? 1 : 0)
-                                  .fade(delay: 100.ms, duration: 600.ms)
-                                  .slideY(begin: 0.1, end: 0),
-                            ),
-                            const SizedBox(width: 48),
-                            Expanded(
-                              child: _buildContactInfo(context)
-                                  .animate(target: _isVisible ? 1 : 0)
-                                  .fade(delay: 200.ms, duration: 600.ms)
-                                  .slideY(begin: 0.1, end: 0),
-                            ),
-                          ],
-                        );
-                      }
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildCompanyInfo(context)
-                              .animate(target: _isVisible ? 1 : 0)
-                              .fade(duration: 600.ms)
-                              .slideY(begin: 0.1, end: 0),
-                          const SizedBox(height: 48),
-                          _buildQuickLinks(context)
-                              .animate(target: _isVisible ? 1 : 0)
-                              .fade(delay: 100.ms, duration: 600.ms)
-                              .slideY(begin: 0.1, end: 0),
-                          const SizedBox(height: 48),
-                          _buildContactInfo(context)
-                              .animate(target: _isVisible ? 1 : 0)
-                              .fade(delay: 200.ms, duration: 600.ms)
-                              .slideY(begin: 0.1, end: 0),
-                        ],
+                  ScrollVisibilityDetector(
+                    detectorKey: const Key('footer-content-detector'),
+                    builder: (context, isVisible, child) {
+                      return ResponsiveBuilder(
+                        builder: (context, sizingInformation) {
+                          if (sizingInformation.isDesktop) {
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: _buildCompanyInfo(context)
+                                      .riseFade(isVisible: isVisible),
+                                ),
+                                const SizedBox(width: 48),
+                                Expanded(
+                                  child: _buildQuickLinks(context)
+                                      .riseFade(isVisible: isVisible, delay: 100.ms),
+                                ),
+                                const SizedBox(width: 48),
+                                Expanded(
+                                  child: _buildContactInfo(context)
+                                      .riseFade(isVisible: isVisible, delay: 200.ms),
+                                ),
+                              ],
+                            );
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildCompanyInfo(context)
+                                  .riseFade(isVisible: isVisible),
+                              const SizedBox(height: 48),
+                              _buildQuickLinks(context)
+                                  .riseFade(isVisible: isVisible, delay: 100.ms),
+                              const SizedBox(height: 48),
+                              _buildContactInfo(context)
+                                  .riseFade(isVisible: isVisible, delay: 200.ms),
+                            ],
+                          );
+                        },
                       );
                     },
                   ),
@@ -111,8 +96,7 @@ class _FooterSectionState extends State<FooterSection> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildCompanyInfo(BuildContext context) {
@@ -122,10 +106,10 @@ class _FooterSectionState extends State<FooterSection> {
         Text(
           AppConstants.appName,
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
-          ),
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+              ),
         ),
         const SizedBox(height: 24),
         const Text(
@@ -152,7 +136,7 @@ class _FooterSectionState extends State<FooterSection> {
         _buildLinkItem('HOME'),
         _buildLinkItem('ABOUT US'),
         _buildLinkItem('SERVICES'),
-        _buildLinkItem('CAREERS'),
+        // _buildLinkItem('CAREERS'),
         _buildLinkItem('CONTACT US'),
       ],
     );
@@ -162,9 +146,8 @@ class _FooterSectionState extends State<FooterSection> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: InkWell(
-        onTap: widget.onNavigate != null
-            ? () => widget.onNavigate!(title)
-            : null,
+        onTap:
+            widget.onNavigate != null ? () => widget.onNavigate!(title) : null,
         child: Text(title, style: const TextStyle(color: Colors.white70)),
       ),
     );

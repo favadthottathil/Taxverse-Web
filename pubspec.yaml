@@ -37,12 +37,16 @@ dependencies:
   google_fonts: ^8.0.2
   responsive_builder: ^0.7.1
   url_launcher: ^6.3.2
-  font_awesome_flutter: ^10.12.0
+  font_awesome_flutter: ^11.0.0
   flutter_animate: ^4.5.2
   visibility_detector: ^0.4.0+2
   provider: ^6.1.5+1
   shared_preferences: ^2.5.4
   flutter_svg: ^2.2.4
+  flutter_web_plugins:
+    sdk: flutter
+  web: ^1.1.1
+
 
 dev_dependencies:
   flutter_test:
@@ -66,9 +70,25 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+
+  fonts:
+    - family: Metropolis
+      fonts:
+        - asset: assets/fonts/metropolis/Metropolis-Regular.otf
+        - asset: assets/fonts/metropolis/Metropolis-Light.otf
+          weight: 300
+        - asset: assets/fonts/metropolis/Metropolis-Medium.otf
+          weight: 500
+        - asset: assets/fonts/metropolis/Metropolis-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/metropolis/Metropolis-Bold.otf
+          weight: 700
+        - asset: assets/fonts/metropolis/Metropolis-ExtraBold.otf
+          weight: 800
+        - asset: assets/fonts/metropolis/Metropolis-Black.otf
+          weight: 900
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

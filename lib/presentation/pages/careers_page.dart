@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -33,8 +32,8 @@ class _CareersPageState extends State<CareersPage> {
       case 'CAREERS':
         _scrollController.animateTo(
           0,
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1200),
+          curve: Curves.easeOutQuart,
         );
         break;
       case 'CONTACT US':
@@ -93,7 +92,8 @@ class _CareersHeroBanner extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+          constraints:
+              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
@@ -101,34 +101,46 @@ class _CareersHeroBanner extends StatelessWidget {
               children: [
                 Text(
                   'CAREERS',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
                     color: AppTheme.accentColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 2.0,
                   ),
-                ).animate().fade(duration: 600.ms).slideY(begin: 0.2, end: 0, duration: 600.ms),
+                )
+                    .animate()
+                    .fade(duration: 1600.ms)
+                    .slideY(begin: 0.2, end: 0, duration: 1600.ms),
                 const SizedBox(height: 12),
                 Text(
                   'Build Your Career with Taxverse',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
                     color: Colors.white,
                     fontSize: 42,
                     fontWeight: FontWeight.w800,
                     height: 1.15,
                   ),
-                ).animate().fade(delay: 100.ms, duration: 600.ms).slideY(begin: 0.2, end: 0, duration: 600.ms),
+                )
+                    .animate()
+                    .fade(delay: 100.ms, duration: 1600.ms)
+                    .slideY(begin: 0.2, end: 0, duration: 1600.ms),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: 600,
                   child: Text(
                     'Join a team of professionals dedicated to excellence in finance and business services.',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
                       color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 16,
                       height: 1.6,
                     ),
-                  ).animate().fade(delay: 200.ms, duration: 600.ms).slideY(begin: 0.2, end: 0, duration: 600.ms),
+                  )
+                      .animate()
+                      .fade(delay: 200.ms, duration: 1600.ms)
+                      .slideY(begin: 0.2, end: 0, duration: 1600.ms),
                 ),
               ],
             ),
@@ -165,52 +177,93 @@ class _WhyWorkWithUsSectionState extends State<_WhyWorkWithUsSection> {
         padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+            constraints:
+                const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
             child: Column(
               children: [
                 Text(
                   'WHY CHOOSE US',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
                     color: AppTheme.accentColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 2.0,
                   ),
-                ).animate(target: _isVisible ? 1 : 0).fade(duration: 600.ms),
+                ).animate(target: _isVisible ? 1 : 0).fade(duration: 1600.ms),
                 const SizedBox(height: 12),
                 Text(
                   'Why Work With Us',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
                     color: AppTheme.primaryColor,
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
                   ),
-                ).animate(target: _isVisible ? 1 : 0).fade(delay: 100.ms, duration: 600.ms),
+                )
+                    .animate(target: _isVisible ? 1 : 0)
+                    .fade(delay: 100.ms, duration: 1600.ms),
                 const SizedBox(height: 48),
                 ResponsiveBuilder(
                   builder: (context, sizingInformation) {
                     if (sizingInformation.isDesktop) {
                       return Row(
                         children: [
-                          Expanded(child: _buildCard(Icons.school_outlined, 'Learning Culture', 'Continuous learning through workshops, certifications, and on-the-job training programs.', 0)),
+                          Expanded(
+                              child: _buildCard(
+                                  Icons.school_outlined,
+                                  'Learning Culture',
+                                  'Continuous learning through workshops, certifications, and on-the-job training programs.',
+                                  0)),
                           const SizedBox(width: 24),
-                          Expanded(child: _buildCard(Icons.groups_outlined, 'Expert Mentors', 'Work alongside experienced CAs and industry leaders who guide your professional growth.', 1)),
+                          Expanded(
+                              child: _buildCard(
+                                  Icons.groups_outlined,
+                                  'Expert Mentors',
+                                  'Work alongside experienced CAs and industry leaders who guide your professional growth.',
+                                  1)),
                           const SizedBox(width: 24),
-                          Expanded(child: _buildCard(Icons.trending_up_outlined, 'Growth Path', 'Clear career progression with regular performance reviews and advancement opportunities.', 2)),
+                          Expanded(
+                              child: _buildCard(
+                                  Icons.trending_up_outlined,
+                                  'Growth Path',
+                                  'Clear career progression with regular performance reviews and advancement opportunities.',
+                                  2)),
                           const SizedBox(width: 24),
-                          Expanded(child: _buildCard(Icons.laptop_mac_outlined, 'Modern Workplace', 'State-of-the-art office with the latest tools, technology, and flexible work arrangements.', 3)),
+                          Expanded(
+                              child: _buildCard(
+                                  Icons.laptop_mac_outlined,
+                                  'Modern Workplace',
+                                  'State-of-the-art office with the latest tools, technology, and flexible work arrangements.',
+                                  3)),
                         ],
                       );
                     }
                     return Column(
                       children: [
-                        _buildCard(Icons.school_outlined, 'Learning Culture', 'Continuous learning through workshops, certifications, and on-the-job training programs.', 0),
+                        _buildCard(
+                            Icons.school_outlined,
+                            'Learning Culture',
+                            'Continuous learning through workshops, certifications, and on-the-job training programs.',
+                            0),
                         const SizedBox(height: 16),
-                        _buildCard(Icons.groups_outlined, 'Expert Mentors', 'Work alongside experienced CAs and industry leaders who guide your professional growth.', 1),
+                        _buildCard(
+                            Icons.groups_outlined,
+                            'Expert Mentors',
+                            'Work alongside experienced CAs and industry leaders who guide your professional growth.',
+                            1),
                         const SizedBox(height: 16),
-                        _buildCard(Icons.trending_up_outlined, 'Growth Path', 'Clear career progression with regular performance reviews and advancement opportunities.', 2),
+                        _buildCard(
+                            Icons.trending_up_outlined,
+                            'Growth Path',
+                            'Clear career progression with regular performance reviews and advancement opportunities.',
+                            2),
                         const SizedBox(height: 16),
-                        _buildCard(Icons.laptop_mac_outlined, 'Modern Workplace', 'State-of-the-art office with the latest tools, technology, and flexible work arrangements.', 3),
+                        _buildCard(
+                            Icons.laptop_mac_outlined,
+                            'Modern Workplace',
+                            'State-of-the-art office with the latest tools, technology, and flexible work arrangements.',
+                            3),
                       ],
                     );
                   },
@@ -223,7 +276,8 @@ class _WhyWorkWithUsSectionState extends State<_WhyWorkWithUsSection> {
     );
   }
 
-  Widget _buildCard(IconData icon, String title, String description, int index) {
+  Widget _buildCard(
+      IconData icon, String title, String description, int index) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
       decoration: BoxDecoration(
@@ -244,7 +298,8 @@ class _WhyWorkWithUsSectionState extends State<_WhyWorkWithUsSection> {
           const SizedBox(height: 20),
           Text(
             title,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Metropolis',
               color: AppTheme.primaryColor,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -254,7 +309,8 @@ class _WhyWorkWithUsSectionState extends State<_WhyWorkWithUsSection> {
           Text(
             description,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Metropolis',
               color: AppTheme.textSecondary,
               fontSize: 14,
               height: 1.6,
@@ -262,9 +318,16 @@ class _WhyWorkWithUsSectionState extends State<_WhyWorkWithUsSection> {
           ),
         ],
       ),
-    ).animate(target: _isVisible ? 1 : 0)
-        .fade(delay: Duration(milliseconds: 200 + (index * 150)), duration: 600.ms)
-        .slideY(begin: 0.15, end: 0, delay: Duration(milliseconds: 200 + (index * 150)), duration: 600.ms);
+    )
+        .animate(target: _isVisible ? 1 : 0)
+        .fade(
+            delay: Duration(milliseconds: 200 + (index * 150)),
+            duration: 1600.ms)
+        .slideY(
+            begin: 0.15,
+            end: 0,
+            delay: Duration(milliseconds: 200 + (index * 150)),
+            duration: 1600.ms);
   }
 }
 
@@ -325,27 +388,32 @@ class _OpenPositionsSectionState extends State<_OpenPositionsSection> {
         padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+            constraints:
+                const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
             child: Column(
               children: [
                 Text(
                   'OPPORTUNITIES',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
                     color: AppTheme.accentColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 2.0,
                   ),
-                ).animate(target: _isVisible ? 1 : 0).fade(duration: 600.ms),
+                ).animate(target: _isVisible ? 1 : 0).fade(duration: 1600.ms),
                 const SizedBox(height: 12),
                 Text(
                   'Current Openings',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
                     color: AppTheme.primaryColor,
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
                   ),
-                ).animate(target: _isVisible ? 1 : 0).fade(delay: 100.ms, duration: 600.ms),
+                )
+                    .animate(target: _isVisible ? 1 : 0)
+                    .fade(delay: 100.ms, duration: 1600.ms),
                 const SizedBox(height: 48),
                 ResponsiveBuilder(
                   builder: (context, sizingInformation) {
@@ -353,12 +421,17 @@ class _OpenPositionsSectionState extends State<_OpenPositionsSection> {
                     if (sizingInformation.isDesktop) {
                       crossAxisCount = 2;
                     }
-                    
+
                     List<Widget> rows = [];
-                    for (var i = 0; i < _positions.length; i += crossAxisCount) {
-                      int end = (i + crossAxisCount < _positions.length) ? i + crossAxisCount : _positions.length;
-                      List<Map<String, String>> rowItems = _positions.sublist(i, end);
-                      
+                    for (var i = 0;
+                        i < _positions.length;
+                        i += crossAxisCount) {
+                      int end = (i + crossAxisCount < _positions.length)
+                          ? i + crossAxisCount
+                          : _positions.length;
+                      List<Map<String, String>> rowItems =
+                          _positions.sublist(i, end);
+
                       rows.add(
                         IntrinsicHeight(
                           child: Row(
@@ -368,13 +441,16 @@ class _OpenPositionsSectionState extends State<_OpenPositionsSection> {
                                 return Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: _buildJobCard(entry.value, i + entry.key),
+                                    child: _buildJobCard(
+                                        entry.value, i + entry.key),
                                   ),
                                 );
                               }),
                               ...List.generate(
                                 crossAxisCount - rowItems.length,
-                                (_) => Expanded(child: Container(margin: const EdgeInsets.all(8.0))),
+                                (_) => Expanded(
+                                    child: Container(
+                                        margin: const EdgeInsets.all(8.0))),
                               ),
                             ],
                           ),
@@ -413,7 +489,8 @@ class _OpenPositionsSectionState extends State<_OpenPositionsSection> {
         children: [
           Text(
             position['title']!,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Metropolis',
               color: AppTheme.primaryColor,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -448,12 +525,14 @@ class _OpenPositionsSectionState extends State<_OpenPositionsSection> {
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: Text(
                 'Apply Now',
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Metropolis',
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
@@ -462,9 +541,16 @@ class _OpenPositionsSectionState extends State<_OpenPositionsSection> {
           ),
         ],
       ),
-    ).animate(target: _isVisible ? 1 : 0)
-        .fade(delay: Duration(milliseconds: 200 + (index * 150)), duration: 600.ms)
-        .slideY(begin: 0.15, end: 0, delay: Duration(milliseconds: 200 + (index * 150)), duration: 600.ms);
+    )
+        .animate(target: _isVisible ? 1 : 0)
+        .fade(
+            delay: Duration(milliseconds: 200 + (index * 150)),
+            duration: 1600.ms)
+        .slideY(
+            begin: 0.15,
+            end: 0,
+            delay: Duration(milliseconds: 200 + (index * 150)),
+            duration: 1600.ms);
   }
 
   Widget _buildTag(IconData icon, String label) {
@@ -481,7 +567,8 @@ class _OpenPositionsSectionState extends State<_OpenPositionsSection> {
           const SizedBox(width: 6),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Metropolis',
               color: AppTheme.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -516,7 +603,8 @@ class _GetInTouchSection extends StatelessWidget {
               children: [
                 Text(
                   'Don\'t see the right position?',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -526,7 +614,8 @@ class _GetInTouchSection extends StatelessWidget {
                 Text(
                   'Send your CV to us and we\'ll reach out when we have the perfect match for you.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
                     color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 15,
                     height: 1.6,
@@ -536,11 +625,13 @@ class _GetInTouchSection extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.email_outlined, color: AppTheme.accentColor, size: 20),
+                    Icon(Icons.email_outlined,
+                        color: AppTheme.accentColor, size: 20),
                     const SizedBox(width: 8),
                     SelectableText(
                       AppConstants.contactEmail,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
                         color: AppTheme.accentColor,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -552,11 +643,13 @@ class _GetInTouchSection extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.phone_outlined, color: AppTheme.accentColor, size: 20),
+                    Icon(Icons.phone_outlined,
+                        color: AppTheme.accentColor, size: 20),
                     const SizedBox(width: 8),
                     SelectableText(
                       AppConstants.contactPhone,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
                         color: AppTheme.accentColor,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -566,7 +659,10 @@ class _GetInTouchSection extends StatelessWidget {
                 ),
               ],
             ),
-          ).animate().fade(duration: 600.ms).slideY(begin: 0.1, end: 0, duration: 600.ms),
+          )
+              .animate()
+              .fade(duration: 1600.ms)
+              .slideY(begin: 0.1, end: 0, duration: 1600.ms),
         ),
       ),
     );

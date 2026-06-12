@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import '../../core/constants.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../widgets/header_nav.dart';
+import '../widgets/scroll_visibility_detector.dart';
 import 'sections/footer_section.dart';
 
 class AboutUsPage extends StatefulWidget {
@@ -19,6 +18,11 @@ class _AboutUsPageState extends State<AboutUsPage> {
   final ScrollController _scrollController = ScrollController();
 
   void _handleNavigate(String section) {
+    if (section.startsWith('SERVICES|')) {
+      Navigator.pushNamed(context, '/services',
+          arguments: section.split('|')[1]);
+      return;
+    }
     switch (section) {
       case 'HOME':
         Navigator.pushReplacementNamed(context, '/');
@@ -26,16 +30,16 @@ class _AboutUsPageState extends State<AboutUsPage> {
       case 'ABOUT US':
         _scrollController.animateTo(
           0,
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1200),
+          curve: Curves.easeOutQuart,
         );
         break;
       case 'SERVICES':
         Navigator.pushReplacementNamed(context, '/services');
         break;
-      case 'CAREERS':
-        Navigator.pushReplacementNamed(context, '/careers');
-        break;
+      // case 'CAREERS':
+      //   Navigator.pushReplacementNamed(context, '/careers');
+      //   break;
       case 'CONTACT US':
       case 'Contact Us':
         Navigator.pushReplacementNamed(context, '/contact');
@@ -92,44 +96,54 @@ class _AboutHeroBanner extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+          constraints:
+              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ABOUT US',
-                  style: GoogleFonts.inter(
-                    color: AppTheme.accentColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2.0,
-                  ),
-                ).animate().fade(duration: 600.ms).slideY(begin: 0.2, end: 0, duration: 600.ms),
-                const SizedBox(height: 12),
-                Text(
-                  'Our Story of Excellence',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 42,
-                    fontWeight: FontWeight.w800,
-                    height: 1.15,
-                  ),
-                ).animate().fade(delay: 100.ms, duration: 600.ms).slideY(begin: 0.2, end: 0, duration: 600.ms),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 600,
-                  child: Text(
-                    'Two decades of trust, expertise, and unwavering commitment to our clients\' success.',
-                    style: GoogleFonts.inter(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 16,
-                      height: 1.6,
+            child: ScrollVisibilityDetector(
+              detectorKey: const Key('about-hero-detector'),
+              animateOnce: true,
+              builder: (context, isVisible, child) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ABOUT US',
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
+                        color: AppTheme.accentColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2.0,
+                      ),
+                    ).riseFade(isVisible: isVisible),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Our Story of Excellence',
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
+                        color: Colors.white,
+                        fontSize: 42,
+                        fontWeight: FontWeight.w800,
+                        height: 1.15,
+                      ),
+                    ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 600,
+                      child: Text(
+                        'Over 6 years of trust, expertise, and unwavering commitment to our clients\' success.',
+                        style: TextStyle(
+                          fontFamily: 'Metropolis',
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 16,
+                          height: 1.6,
+                        ),
+                      ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
                     ),
-                  ).animate().fade(delay: 200.ms, duration: 600.ms).slideY(begin: 0.2, end: 0, duration: 600.ms),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -147,107 +161,108 @@ class _BuildingTrustSection extends StatefulWidget {
 }
 
 class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
-  bool _isVisible = false;
-
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('building-trust-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() => _isVisible = true);
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        color: const Color(0xFFF8FAFC),
-        padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
-            child: ResponsiveBuilder(
-              builder: (context, sizingInformation) {
-                if (sizingInformation.isDesktop) {
-                  return Row(
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFF8FAFC),
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints:
+              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+          child: ScrollVisibilityDetector(
+            detectorKey: const Key('building-trust-section'),
+            builder: (context, isVisible, child) {
+              return ResponsiveBuilder(
+                builder: (context, sizingInformation) {
+                  if (sizingInformation.isDesktop) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 5, child: _buildTextContent(isVisible)),
+                        const SizedBox(width: 64),
+                        Expanded(flex: 4, child: _buildStatsGrid(isVisible)),
+                      ],
+                    );
+                  }
+                  return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(flex: 5, child: _buildTextContent()),
-                      const SizedBox(width: 64),
-                      Expanded(flex: 4, child: _buildStatsGrid()),
+                      _buildTextContent(isVisible),
+                      const SizedBox(height: 40),
+                      _buildStatsGrid(isVisible),
                     ],
                   );
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTextContent(),
-                    const SizedBox(height: 40),
-                    _buildStatsGrid(),
-                  ],
-                );
-              },
-            ),
+                },
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTextContent() {
+  Widget _buildTextContent(bool isVisible) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'SINCE 2004',
-          style: GoogleFonts.inter(
-            color: AppTheme.accentColor,
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            color: AppTheme.primaryColor,
             fontSize: 13,
             fontWeight: FontWeight.w600,
             letterSpacing: 2.0,
           ),
-        ).animate(target: _isVisible ? 1 : 0).fade(duration: 600.ms),
+        ).riseFade(isVisible: isVisible),
         const SizedBox(height: 12),
         Text(
           'Building Trust Through Expertise',
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Metropolis',
             color: AppTheme.primaryColor,
             fontSize: 32,
             fontWeight: FontWeight.w800,
             height: 1.2,
           ),
-        ).animate(target: _isVisible ? 1 : 0).fade(delay: 100.ms, duration: 600.ms),
+        ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
         const SizedBox(height: 24),
         Text(
           'Founded in 2004, Taxverse has grown from a single-office practice into a multi-professional firm with a network spanning India and the Middle East.',
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Metropolis',
             color: AppTheme.textSecondary,
             fontSize: 15,
             height: 1.7,
           ),
-        ).animate(target: _isVisible ? 1 : 0).fade(delay: 200.ms, duration: 600.ms),
+        ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
         const SizedBox(height: 20),
         Text(
-          'Our journey has been defined by an unwavering commitment to professional excellence, ethical practice, and client-centric service. Over two decades, we have served 2,000+ clients across diverse industries.',
-          style: GoogleFonts.inter(
+          'Our journey has been defined by an unwavering commitment to professional excellence, ethical practice, and client-centric service. Over the past 6+ years, we have served 2,000+ clients across diverse industries.',
+          style: TextStyle(
+            fontFamily: 'Metropolis',
             color: AppTheme.textSecondary,
             fontSize: 15,
             height: 1.7,
           ),
-        ).animate(target: _isVisible ? 1 : 0).fade(delay: 300.ms, duration: 600.ms),
+        ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(3)),
         const SizedBox(height: 20),
         Text(
           'Today, Taxverse stands as a trusted name in chartered accountancy, offering comprehensive services in audit, taxation, accounting, registrations, and business consulting.',
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Metropolis',
             color: AppTheme.textSecondary,
             fontSize: 15,
             height: 1.7,
           ),
-        ).animate(target: _isVisible ? 1 : 0).fade(delay: 400.ms, duration: 600.ms),
+        ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(4)),
       ],
     );
   }
 
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(bool isVisible) {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
@@ -261,10 +276,10 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
             children: [
               Expanded(
                 child: _AnimatedStatItem(
-                  value: 20,
+                  value: 6,
                   suffix: '+',
                   label: 'Years',
-                  animate: _isVisible,
+                  animate: isVisible,
                   delay: 400,
                 ),
               ),
@@ -273,7 +288,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                   value: 2000,
                   suffix: '+',
                   label: 'Clients',
-                  animate: _isVisible,
+                  animate: isVisible,
                   useComma: true,
                   delay: 600,
                 ),
@@ -288,7 +303,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                   value: 500,
                   suffix: '+',
                   label: 'Registrations',
-                  animate: _isVisible,
+                  animate: isVisible,
                   delay: 800,
                 ),
               ),
@@ -297,7 +312,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                   value: 50,
                   suffix: '+',
                   label: 'Professionals',
-                  animate: _isVisible,
+                  animate: isVisible,
                   delay: 1000,
                 ),
               ),
@@ -305,7 +320,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
           ),
         ],
       ),
-    ).animate(target: _isVisible ? 1 : 0).fade(delay: 300.ms, duration: 600.ms).slideX(begin: 0.1, end: 0, duration: 600.ms);
+    ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2));
   }
 }
 
@@ -388,8 +403,9 @@ class _AnimatedStatItemState extends State<_AnimatedStatItem>
           children: [
             Text(
               '${_formatNumber(currentValue)}${widget.suffix}',
-              style: GoogleFonts.inter(
-                color: AppTheme.accentColor,
+              style: TextStyle(
+                fontFamily: 'Metropolis',
+                color: AppTheme.primaryColor,
                 fontSize: 36,
                 fontWeight: FontWeight.w700,
               ),
@@ -397,7 +413,8 @@ class _AnimatedStatItemState extends State<_AnimatedStatItem>
             const SizedBox(height: 4),
             Text(
               widget.label,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Metropolis',
                 color: AppTheme.textSecondary,
                 fontSize: 14,
               ),
@@ -418,83 +435,80 @@ class _MeetFounderSection extends StatefulWidget {
 }
 
 class _MeetFounderSectionState extends State<_MeetFounderSection> {
-  bool _isVisible = false;
-
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('meet-founder-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() => _isVisible = true);
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        color: const Color(0xFFF1F5F9),
-        padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: Column(
-              children: [
-                Text(
-                  'LEADERSHIP',
-                  style: GoogleFonts.inter(
-                    color: AppTheme.accentColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2.0,
-                  ),
-                ).animate(target: _isVisible ? 1 : 0).fade(duration: 600.ms),
-                const SizedBox(height: 12),
-                Text(
-                  'Meet Our Founder',
-                  style: GoogleFonts.inter(
-                    color: AppTheme.primaryColor,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ).animate(target: _isVisible ? 1 : 0).fade(delay: 100.ms, duration: 600.ms),
-                const SizedBox(height: 40),
-                Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ResponsiveBuilder(
-                    builder: (context, sizingInformation) {
-                      if (sizingInformation.isDesktop) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFF1F5F9),
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: ScrollVisibilityDetector(
+            detectorKey: const Key('meet-founder-section'),
+            builder: (context, isVisible, child) {
+              return Column(
+                children: [
+                  Text(
+                    'LEADERSHIP',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      color: AppTheme.primaryColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2.0,
+                    ),
+                  ).riseFade(isVisible: isVisible),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Meet Our Founder',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      color: AppTheme.primaryColor,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
+                  const SizedBox(height: 40),
+                  Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ResponsiveBuilder(
+                      builder: (context, sizingInformation) {
+                        if (sizingInformation.isDesktop) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildAvatar(),
+                              const SizedBox(width: 32),
+                              Expanded(child: _buildFounderInfo()),
+                            ],
+                          );
+                        }
+                        return Column(
                           children: [
                             _buildAvatar(),
-                            const SizedBox(width: 32),
-                            Expanded(child: _buildFounderInfo()),
+                            const SizedBox(height: 24),
+                            _buildFounderInfo(),
                           ],
                         );
-                      }
-                      return Column(
-                        children: [
-                          _buildAvatar(),
-                          const SizedBox(height: 24),
-                          _buildFounderInfo(),
-                        ],
-                      );
-                    },
-                  ),
-                ).animate(target: _isVisible ? 1 : 0).fade(delay: 200.ms, duration: 600.ms).slideY(begin: 0.1, end: 0, duration: 600.ms),
-              ],
-            ),
+                      },
+                    ),
+                  ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -523,7 +537,8 @@ class _MeetFounderSectionState extends State<_MeetFounderSection> {
       children: [
         Text(
           'Riju Chandrasekhar',
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Metropolis',
             color: AppTheme.primaryColor,
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -532,8 +547,9 @@ class _MeetFounderSectionState extends State<_MeetFounderSection> {
         const SizedBox(height: 4),
         Text(
           'Founder & Managing Partner',
-          style: GoogleFonts.inter(
-            color: AppTheme.accentColor,
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            color: AppTheme.primaryColor,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -541,7 +557,8 @@ class _MeetFounderSectionState extends State<_MeetFounderSection> {
         const SizedBox(height: 2),
         Text(
           'FCA, LLB, DISA, B.Com',
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Metropolis',
             color: AppTheme.textSecondary,
             fontSize: 13,
           ),
@@ -549,7 +566,8 @@ class _MeetFounderSectionState extends State<_MeetFounderSection> {
         const SizedBox(height: 16),
         Text(
           'With over 25 years of distinguished experience in chartered accountancy and law, Riju Chandrasekhar founded Taxverse with a vision to deliver world-class financial services rooted in integrity and innovation. Under his leadership, the firm has grown into a multi-professional practice serving clients across India and the Middle East.',
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Metropolis',
             color: AppTheme.textSecondary,
             fontSize: 15,
             height: 1.7,
@@ -569,158 +587,162 @@ class _CoreValuesSection extends StatefulWidget {
 }
 
 class _CoreValuesSectionState extends State<_CoreValuesSection> {
-  bool _isVisible = false;
-
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('core-values-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() => _isVisible = true);
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        color: const Color(0xFFF8FAFC),
-        padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
-            child: Column(
-              children: [
-                Text(
-                  'PHILOSOPHY',
-                  style: GoogleFonts.inter(
-                    color: AppTheme.accentColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2.0,
-                  ),
-                ).animate(target: _isVisible ? 1 : 0).fade(duration: 600.ms),
-                const SizedBox(height: 12),
-                Text(
-                  'Our Core Values',
-                  style: GoogleFonts.inter(
-                    color: AppTheme.primaryColor,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ).animate(target: _isVisible ? 1 : 0).fade(delay: 100.ms, duration: 600.ms),
-                const SizedBox(height: 48),
-                ResponsiveBuilder(
-                  builder: (context, sizingInformation) {
-                    if (sizingInformation.isDesktop) {
-                      return Row(
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFF8FAFC),
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints:
+              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+          child: ScrollVisibilityDetector(
+            detectorKey: const Key('core-values-header-detector'),
+            builder: (context, isVisible, child) {
+              return Column(
+                children: [
+                  Text(
+                    'PHILOSOPHY',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      color: AppTheme.primaryColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2.0,
+                    ),
+                  ).riseFade(isVisible: isVisible),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Our Core Values',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      color: AppTheme.primaryColor,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
+                  const SizedBox(height: 48),
+                  ResponsiveBuilder(
+                    builder: (context, sizingInformation) {
+                      if (sizingInformation.isDesktop) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: _buildValueCard(
+                                Icons.shield_outlined,
+                                'Integrity',
+                                'We uphold the highest standards of professional ethics in everything we do.',
+                                0,
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: _buildValueCard(
+                                Icons.emoji_events_outlined,
+                                'Excellence',
+                                'Delivering exceptional quality and value to every client, every time.',
+                                1,
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: _buildValueCard(
+                                Icons.lightbulb_outlined,
+                                'Innovation',
+                                'Embracing technology and modern practices to stay ahead of the curve.',
+                                2,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      return Column(
                         children: [
-                          Expanded(
-                            child: _buildValueCard(
-                              Icons.shield_outlined,
-                              'Integrity',
-                              'We uphold the highest standards of professional ethics in everything we do.',
-                              0,
-                            ),
+                          _buildValueCard(
+                            Icons.shield_outlined,
+                            'Integrity',
+                            'We uphold the highest standards of professional ethics in everything we do.',
+                            0,
                           ),
-                          const SizedBox(width: 24),
-                          Expanded(
-                            child: _buildValueCard(
-                              Icons.emoji_events_outlined,
-                              'Excellence',
-                              'Delivering exceptional quality and value to every client, every time.',
-                              1,
-                            ),
+                          const SizedBox(height: 16),
+                          _buildValueCard(
+                            Icons.emoji_events_outlined,
+                            'Excellence',
+                            'Delivering exceptional quality and value to every client, every time.',
+                            1,
                           ),
-                          const SizedBox(width: 24),
-                          Expanded(
-                            child: _buildValueCard(
-                              Icons.lightbulb_outlined,
-                              'Innovation',
-                              'Embracing technology and modern practices to stay ahead of the curve.',
-                              2,
-                            ),
+                          const SizedBox(height: 16),
+                          _buildValueCard(
+                            Icons.lightbulb_outlined,
+                            'Innovation',
+                            'Embracing technology and modern practices to stay ahead of the curve.',
+                            2,
                           ),
                         ],
                       );
-                    }
-                    return Column(
-                      children: [
-                        _buildValueCard(
-                          Icons.shield_outlined,
-                          'Integrity',
-                          'We uphold the highest standards of professional ethics in everything we do.',
-                          0,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildValueCard(
-                          Icons.emoji_events_outlined,
-                          'Excellence',
-                          'Delivering exceptional quality and value to every client, every time.',
-                          1,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildValueCard(
-                          Icons.lightbulb_outlined,
-                          'Innovation',
-                          'Embracing technology and modern practices to stay ahead of the curve.',
-                          2,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
+                    },
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildValueCard(IconData icon, String title, String description, int index) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+  Widget _buildValueCard(
+      IconData icon, String title, String description, int index) {
+    return ScrollVisibilityDetector(
+      detectorKey: Key('core-value-$index'),
+      builder: (context, isVisible, child) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            size: 36,
-            color: AppTheme.accentColor,
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                size: 36,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                title,
+                style: TextStyle(
+                  fontFamily: 'Metropolis',
+                  color: AppTheme.primaryColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Metropolis',
+                  color: AppTheme.textSecondary,
+                  fontSize: 14,
+                  height: 1.6,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          Text(
-            title,
-            style: GoogleFonts.inter(
-              color: AppTheme.primaryColor,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              color: AppTheme.textSecondary,
-              fontSize: 14,
-              height: 1.6,
-            ),
-          ),
-        ],
-      ),
-    ).animate(target: _isVisible ? 1 : 0)
-        .fade(delay: Duration(milliseconds: 200 + (index * 150)), duration: 600.ms)
-        .slideY(begin: 0.15, end: 0, delay: Duration(milliseconds: 200 + (index * 150)), duration: 600.ms);
+        ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(index));
+      },
+    );
   }
 }

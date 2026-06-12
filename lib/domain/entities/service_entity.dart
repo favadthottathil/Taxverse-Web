@@ -1,9 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ServiceEntity {
   final String title;
   final String description;
-  final IconData icon;
+  final FaIconData icon;
 
   const ServiceEntity({
     required this.title,

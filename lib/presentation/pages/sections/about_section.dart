@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import '../../../core/constants.dart';
+import '../../../core/motion.dart';
 import '../../providers/content_provider.dart';
+import '../../widgets/scroll_visibility_detector.dart';
 
 class AboutSection extends StatefulWidget {
-  const AboutSection({super.key});
+  final bool animate;
+
+  const AboutSection({super.key, this.animate = true});
 
   @override
   State<AboutSection> createState() => _AboutSectionState();
 }
 
 class _AboutSectionState extends State<AboutSection> {
-  bool _isVisible = false;
-
   @override
   Widget build(BuildContext context) {
     final contentProvider = context.watch<ContentProvider>();
@@ -27,20 +28,7 @@ class _AboutSectionState extends State<AboutSection> {
       );
     }
 
-    return VisibilityDetector(
-      key: const Key('about-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() {
-            _isVisible = true;
-          });
-        } else if (info.visibleFraction == 0 && _isVisible) {
-          setState(() {
-            _isVisible = false;
-          });
-        }
-      },
-      child: Container(
+    return Container(
         color: Theme.of(context).scaffoldBackgroundColor,
         padding: const EdgeInsets.symmetric(vertical: 80),
         child: Center(
@@ -57,48 +45,32 @@ class _AboutSectionState extends State<AboutSection> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: _buildImage(context)
-                              .animate(target: _isVisible ? 1 : 0)
-                              .fade(duration: 600.ms)
-                              .slideX(
-                                begin: -0.1,
-                                end: 0,
-                                curve: Curves.easeOutCubic,
-                              ),
+                          child: ScrollVisibilityDetector(
+                            detectorKey: const Key('about-map-desktop-detector'),
+                            builder: (context, isVisible, child) {
+                              return child.riseFade(isVisible: isVisible);
+                            },
+                            child: _buildMap(context),
+                          ),
                         ),
                         const SizedBox(width: 64),
                         Expanded(
-                          child: _buildContent(context)
-                              .animate(target: _isVisible ? 1 : 0)
-                              .fade(delay: 200.ms, duration: 600.ms)
-                              .slideX(
-                                begin: 0.1,
-                                end: 0,
-                                curve: Curves.easeOutCubic,
-                              ),
+                          child: _buildContent(context),
                         ),
                       ],
                     );
                   }
                   return Column(
                     children: [
-                      _buildImage(context)
-                          .animate(target: _isVisible ? 1 : 0)
-                          .fade(duration: 600.ms)
-                          .slideY(
-                            begin: 0.1,
-                            end: 0,
-                            curve: Curves.easeOutCubic,
-                          ),
+                      ScrollVisibilityDetector(
+                        detectorKey: const Key('about-map-mobile-detector'),
+                        builder: (context, isVisible, child) {
+                          return child.riseFade(isVisible: isVisible);
+                        },
+                        child: _buildMap(context),
+                      ),
                       const SizedBox(height: 48),
-                      _buildContent(context)
-                          .animate(target: _isVisible ? 1 : 0)
-                          .fade(delay: 200.ms, duration: 600.ms)
-                          .slideY(
-                            begin: 0.1,
-                            end: 0,
-                            curve: Curves.easeOutCubic,
-                          ),
+                      _buildContent(context),
                     ],
                   );
                 },
@@ -106,21 +78,14 @@ class _AboutSectionState extends State<AboutSection> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
-  Widget _buildImage(BuildContext context) {
+  Widget _buildMap(BuildContext context) {
     return Container(
       height: 500,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        image: const DecorationImage(
-          image: AssetImage(
-            'assets/images/finance-workspace.jpg',
-          ), // Local target workspace image
-          fit: BoxFit.cover,
-        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -129,6 +94,13 @@ class _AboutSectionState extends State<AboutSection> {
           ),
         ],
       ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.asset(
+          'assets/images/business-meeting.png',
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 
@@ -136,9 +108,9 @@ class _AboutSectionState extends State<AboutSection> {
     final features = [
       {
         'icon': Icons.workspace_premium_outlined,
-        'title': '20+ Years of Expertise',
+        'title': '6+ Years of Expertise',
         'desc':
-            'Two decades of delivering trusted financial services across diverse industries.',
+            'Over 6 years of delivering trusted financial services across diverse industries.',
       },
       {
         'icon': Icons.groups_outlined,
@@ -175,37 +147,52 @@ class _AboutSectionState extends State<AboutSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section label
-        Text(
-          'WHY TAXVERSE',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 2.0,
-          ),
-        ),
-        const SizedBox(height: 12),
-        // Main heading
-        Text(
-          'Why Choose Taxverse',
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-            color: const Color(0xFF1A1A2E),
-            fontWeight: FontWeight.w800,
-            height: 1.2,
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Description
-        Text(
-          'We combine deep regulatory knowledge with modern technology to deliver financial clarity and peace of mind.',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            height: 1.6,
-            color: Colors.grey[600],
-          ),
+        ScrollVisibilityDetector(
+          detectorKey: const Key('about-header-detector'),
+          builder: (context, isVisible, child) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Section label
+                Text(
+                  'WHY TAXVERSE',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2.0,
+                      ),
+                )
+                    .riseFade(isVisible: isVisible),
+                const SizedBox(height: 12),
+                // Main heading
+                Text(
+                  'Why Choose Taxverse',
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        color: const Color(0xFF1A1A2E),
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                      ),
+                )
+                    .riseFade(isVisible: isVisible, delay: 200.ms),
+                const SizedBox(height: 16),
+                // Description
+                Text(
+                  'We combine deep regulatory knowledge with modern technology to deliver financial clarity and peace of mind.',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        height: 1.6,
+                        color: Colors.grey[600],
+                      ),
+                )
+                    .riseFade(isVisible: isVisible, delay: 400.ms),
+              ],
+            );
+          },
         ),
         const SizedBox(height: 36),
         // Feature grid — 3 rows x 2 columns
         ...List.generate(3, (rowIndex) {
+          final firstIndex = rowIndex * 2;
+          final secondIndex = rowIndex * 2 + 1;
           return Padding(
             padding: EdgeInsets.only(bottom: rowIndex < 2 ? 24 : 0),
             child: Row(
@@ -213,18 +200,20 @@ class _AboutSectionState extends State<AboutSection> {
                 Expanded(
                   child: _buildFeatureCard(
                     context,
-                    features[rowIndex * 2]['icon'] as IconData,
-                    features[rowIndex * 2]['title'] as String,
-                    features[rowIndex * 2]['desc'] as String,
+                    features[firstIndex]['icon'] as IconData,
+                    features[firstIndex]['title'] as String,
+                    features[firstIndex]['desc'] as String,
+                    firstIndex,
                   ),
                 ),
                 const SizedBox(width: 24),
                 Expanded(
                   child: _buildFeatureCard(
                     context,
-                    features[rowIndex * 2 + 1]['icon'] as IconData,
-                    features[rowIndex * 2 + 1]['title'] as String,
-                    features[rowIndex * 2 + 1]['desc'] as String,
+                    features[secondIndex]['icon'] as IconData,
+                    features[secondIndex]['title'] as String,
+                    features[secondIndex]['desc'] as String,
+                    secondIndex,
                   ),
                 ),
               ],
@@ -240,43 +229,50 @@ class _AboutSectionState extends State<AboutSection> {
     IconData icon,
     String title,
     String description,
+    int index,
   ) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, size: 22, color: Theme.of(context).primaryColor),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
-                ),
+    final delay = (index % 2 * 150).ms;
+    return ScrollVisibilityDetector(
+      detectorKey: Key('about-feature-card-$index'),
+      builder: (context, isVisible, child) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
+              child: Icon(icon, size: 22, color: Theme.of(context).primaryColor),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1A1A2E),
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                          height: 1.5,
+                        ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        ).riseFade(isVisible: isVisible, delay: delay);
+      },
     );
   }
 }

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF012440); // Navy Blue
-  static const Color secondaryColor = Color(0xFF023E73);
-  static const Color accentColor = Color(0xFFC5A059); // Gold
-  static const Color highlightColor = Color(0xFFC5A059);
+  static const Color primaryColor = Color(0xFF034A3C); // Dark Teal
+  static const Color secondaryColor = Color(0xFFEDEECE);
+  static const Color accentColor = Color(0xFFEDEECE);
+  static const Color highlightColor = Color(0xFFEDEECE);
   static const Color backgroundColor = Color(0xFFF8FAFC); // Tailwind slate-50
-  static const Color textPrimary = Color(0xFF012440);
+  static const Color textPrimary = Color(0xFF034A3C);
   static const Color textSecondary = Color(0xFF4B5563);
 
   static ThemeData get lightTheme {
     return ThemeData(
       brightness: Brightness.light,
       useMaterial3: true,
+      fontFamily: 'Metropolis',
       scaffoldBackgroundColor: backgroundColor,
       primaryColor: primaryColor,
       colorScheme: const ColorScheme.light(
@@ -22,29 +22,34 @@ class AppTheme {
         error: Colors.redAccent,
         surface: backgroundColor,
       ),
-      textTheme: GoogleFonts.plusJakartaSansTextTheme().copyWith(
-        displayLarge: GoogleFonts.plusJakartaSans(
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontFamily: 'Metropolis',
           color: textPrimary,
           fontWeight: FontWeight.w800,
         ),
-        displayMedium: GoogleFonts.plusJakartaSans(
+        displayMedium: TextStyle(
+          fontFamily: 'Metropolis',
           color: textPrimary,
           fontWeight: FontWeight.w700,
         ),
-        headlineLarge: GoogleFonts.plusJakartaSans(
+        headlineLarge: TextStyle(
+          fontFamily: 'Metropolis',
           color: textPrimary,
           fontWeight: FontWeight.w700,
         ),
-        titleLarge: GoogleFonts.plusJakartaSans(
+        titleLarge: TextStyle(
+          fontFamily: 'Metropolis',
           color: textPrimary,
           fontWeight: FontWeight.w700,
         ),
-        titleMedium: GoogleFonts.plusJakartaSans(
+        titleMedium: TextStyle(
+          fontFamily: 'Metropolis',
           color: textPrimary,
           fontWeight: FontWeight.w600,
         ),
-        bodyLarge: GoogleFonts.plusJakartaSans(color: textPrimary),
-        bodyMedium: GoogleFonts.plusJakartaSans(color: textSecondary),
+        bodyLarge: TextStyle(fontFamily: 'Metropolis', color: textPrimary),
+        bodyMedium: TextStyle(fontFamily: 'Metropolis', color: textSecondary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -76,6 +81,7 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.dark,
       useMaterial3: true,
+      fontFamily: 'Metropolis',
       scaffoldBackgroundColor: darkBackground,
       primaryColor: highlightColor,
       colorScheme: const ColorScheme.dark(
@@ -84,29 +90,35 @@ class AppTheme {
         error: Colors.redAccent,
         surface: darkSurface,
       ),
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontFamily: 'Metropolis',
           color: darkTextPrimary,
           fontWeight: FontWeight.bold,
         ),
-        displayMedium: GoogleFonts.inter(
+        displayMedium: TextStyle(
+          fontFamily: 'Metropolis',
           color: darkTextPrimary,
           fontWeight: FontWeight.w700,
         ),
-        headlineLarge: GoogleFonts.inter(
+        headlineLarge: TextStyle(
+          fontFamily: 'Metropolis',
           color: darkTextPrimary,
           fontWeight: FontWeight.w700,
         ),
-        titleLarge: GoogleFonts.inter(
+        titleLarge: TextStyle(
+          fontFamily: 'Metropolis',
           color: darkTextPrimary,
           fontWeight: FontWeight.w700,
         ),
-        titleMedium: GoogleFonts.inter(
+        titleMedium: TextStyle(
+          fontFamily: 'Metropolis',
           color: darkTextPrimary,
           fontWeight: FontWeight.w600,
         ),
-        bodyLarge: GoogleFonts.inter(color: darkTextPrimary),
-        bodyMedium: GoogleFonts.inter(color: darkTextSecondary),
+        bodyLarge: TextStyle(fontFamily: 'Metropolis', color: darkTextPrimary),
+        bodyMedium:
+            TextStyle(fontFamily: 'Metropolis', color: darkTextSecondary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

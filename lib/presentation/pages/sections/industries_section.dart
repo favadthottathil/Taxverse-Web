@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import '../../../core/constants.dart';
+import '../../../core/motion.dart';
+import '../../widgets/scroll_visibility_detector.dart';
 
 class IndustriesSection extends StatefulWidget {
-  const IndustriesSection({super.key});
+  final bool animate;
+
+  const IndustriesSection({super.key, this.animate = true});
 
   @override
   State<IndustriesSection> createState() => _IndustriesSectionState();
 }
 
 class _IndustriesSectionState extends State<IndustriesSection> {
-  bool _isVisible = false;
 
   static const List<Map<String, dynamic>> _industries = [
     {
@@ -67,16 +69,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('industries-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() => _isVisible = true);
-        } else if (info.visibleFraction == 0 && _isVisible) {
-          setState(() => _isVisible = false);
-        }
-      },
-      child: Container(
+    return Container(
         color: const Color(0xFFF7F8FA),
         padding: const EdgeInsets.symmetric(vertical: 80),
         child: Center(
@@ -88,47 +81,46 @@ class _IndustriesSectionState extends State<IndustriesSection> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // Section label
-                  Text(
-                    'INDUSTRIES',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 2.0,
-                    ),
-                  )
-                      .animate(target: _isVisible ? 1 : 0)
-                      .fade(duration: 500.ms),
-                  const SizedBox(height: 12),
-                  // Heading
-                  Text(
-                    'Industries We Serve',
-                    style:
-                        Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: const Color(0xFF1A1A2E),
-                          fontWeight: FontWeight.w800,
-                          height: 1.2,
-                        ),
-                  )
-                      .animate(target: _isVisible ? 1 : 0)
-                      .fade(delay: 100.ms, duration: 500.ms)
-                      .slideY(
-                        begin: 0.05,
-                        end: 0,
-                        curve: Curves.easeOutCubic,
-                      ),
-                  const SizedBox(height: 16),
-                  // Description
-                  Text(
-                    'Trusted by businesses across sectors — from early-stage startups to\nestablished enterprises.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      height: 1.6,
-                      color: Colors.grey[600],
-                    ),
-                  )
-                      .animate(target: _isVisible ? 1 : 0)
-                      .fade(delay: 200.ms, duration: 500.ms),
+                  ScrollVisibilityDetector(
+                    detectorKey: const Key('industries-header-detector'),
+                    builder: (context, isVisible, child) {
+                      return Column(
+                        children: [
+                          // Section label
+                          Text(
+                            'INDUSTRIES',
+                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 2.0,
+                                ),
+                          ).riseFade(isVisible: isVisible),
+                          const SizedBox(height: 12),
+                          // Heading
+                          Text(
+                            'Industries We Serve',
+                            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  color: const Color(0xFF1A1A2E),
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.2,
+                                ),
+                          )
+                              .riseFade(isVisible: isVisible, delay: 200.ms),
+                          const SizedBox(height: 16),
+                          // Description
+                          Text(
+                            'Trusted by businesses across sectors — from early-stage startups to\nestablished enterprises.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  height: 1.6,
+                                  color: Colors.grey[600],
+                                ),
+                          )
+                              .riseFade(isVisible: isVisible, delay: 400.ms),
+                        ],
+                      );
+                    },
+                  ),
                   const SizedBox(height: 56),
                   // Industry icons grid
                   ResponsiveBuilder(
@@ -187,8 +179,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildIndustryItem(
@@ -200,36 +191,34 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     final label = industry['label'] as String;
     final color = industry['color'] as Color;
     final bgColor = industry['bgColor'] as Color;
+    final delay = (index * 80).ms;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Icon(icon, size: 32, color: color),
-        ),
-        const SizedBox(height: 14),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF374151),
-          ),
-        ),
-      ],
-    )
-        .animate(target: _isVisible ? 1 : 0)
-        .fade(delay: (300 + index * 80).ms, duration: 500.ms)
-        .slideY(
-          begin: 0.15,
-          end: 0,
-          delay: (300 + index * 80).ms,
-          curve: Curves.easeOutCubic,
-        );
+    return ScrollVisibilityDetector(
+      detectorKey: Key('industry-item-$index'),
+      builder: (context, isVisible, child) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Icon(icon, size: 32, color: color),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF374151),
+                  ),
+            ),
+          ],
+        ).riseFade(isVisible: isVisible, delay: delay);
+      },
+    );
   }
 }

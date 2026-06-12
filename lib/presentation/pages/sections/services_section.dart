@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants.dart';
+import '../../../core/motion.dart';
 import '../../../core/theme.dart';
 import '../../providers/content_provider.dart';
 import '../../../domain/entities/service_entity.dart';
+import '../../widgets/scroll_visibility_detector.dart';
 
 class ServicesSection extends StatefulWidget {
-  const ServicesSection({super.key});
+  final bool animate;
+
+  const ServicesSection({super.key, this.animate = true});
 
   @override
   State<ServicesSection> createState() => _ServicesSectionState();
 }
 
 class _ServicesSectionState extends State<ServicesSection> {
-  bool _isVisible = false;
   int _hoveredIndex = -1;
 
   @override
@@ -31,20 +33,7 @@ class _ServicesSectionState extends State<ServicesSection> {
         child: Center(child: CircularProgressIndicator()),
       );
     }
-    return VisibilityDetector(
-      key: const Key('services-section'),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction > 0.15 && !_isVisible) {
-          setState(() {
-            _isVisible = true;
-          });
-        } else if (info.visibleFraction == 0 && _isVisible) {
-          setState(() {
-            _isVisible = false;
-          });
-        }
-      },
-      child: Container(
+    return Container(
         color: const Color(0xFFF7F8FA),
         padding: const EdgeInsets.symmetric(vertical: 100),
         child: Center(
@@ -56,63 +45,57 @@ class _ServicesSectionState extends State<ServicesSection> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // "WHAT WE DO" label
-                  Text(
-                    'WHAT WE DO',
-                    style: GoogleFonts.inter(
-                      color: AppTheme.accentColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 2.0,
-                    ),
-                  )
-                      .animate(target: _isVisible ? 1 : 0)
-                      .fade(duration: 600.ms)
-                      .slideY(
-                        begin: 0.2,
-                        end: 0,
-                        curve: Curves.easeOutCubic,
-                      ),
-                  const SizedBox(height: 16),
-                  // "Our Core Services" heading
-                  Text(
-                    'Our Core Services',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.playfairDisplay(
-                      color: AppTheme.primaryColor,
-                      fontSize: 42,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  )
-                      .animate(target: _isVisible ? 1 : 0)
-                      .fade(duration: 600.ms)
-                      .slideY(
-                        begin: 0.2,
-                        end: 0,
-                        curve: Curves.easeOutCubic,
-                      ),
-                  const SizedBox(height: 20),
-                  // Subtitle
-                  SizedBox(
-                    width: 700,
-                    child: Text(
-                      'From startup registration to enterprise-level audits — we deliver end-to-end financial solutions tailored to your business stage.',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        color: AppTheme.textSecondary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        height: 1.6,
-                      ),
-                    ),
-                  )
-                      .animate(target: _isVisible ? 1 : 0)
-                      .fade(delay: 100.ms, duration: 600.ms)
-                      .slideY(
-                        begin: 0.2,
-                        end: 0,
-                        curve: Curves.easeOutCubic,
-                      ),
+                  ScrollVisibilityDetector(
+                    detectorKey: const Key('services-header-detector'),
+                    builder: (context, isVisible, child) {
+                      return Column(
+                        children: [
+                          // "WHAT WE DO" label
+                          Text(
+                            'WHAT WE DO',
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              color: AppTheme.primaryColor,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 2.0,
+                            ),
+                          )
+                              .riseFade(isVisible: isVisible),
+                          const SizedBox(height: 16),
+                          // "Our Core Services" heading
+                          Text(
+                            'Our Core Services',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              color: AppTheme.primaryColor,
+                              fontSize: 42,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                              .riseFade(isVisible: isVisible),
+                          const SizedBox(height: 20),
+                          // Subtitle
+                          SizedBox(
+                            width: 700,
+                            child: Text(
+                              'From startup registration to enterprise-level audits — we deliver end-to-end financial solutions tailored to your business stage.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'Metropolis',
+                                color: AppTheme.textSecondary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                height: 1.6,
+                              ),
+                            ),
+                          )
+                              .riseFade(isVisible: isVisible, delay: 200.ms),
+                        ],
+                      );
+                    },
+                  ),
                   const SizedBox(height: 60),
                   // Service cards
                   ResponsiveBuilder(
@@ -121,23 +104,21 @@ class _ServicesSectionState extends State<ServicesSection> {
                         // Mobile: vertical list
                         return Column(
                           children: List.generate(services.length, (index) {
+                            final delay = (200 + (index * 100)).ms;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16),
-                              child: _buildServiceCard(
-                                context,
-                                services[index],
-                                index,
-                              )
-                                  .animate(target: _isVisible ? 1 : 0)
-                                  .fade(
-                                    delay: (200 + (index * 100)).ms,
-                                    duration: 600.ms,
-                                  )
-                                  .slideY(
-                                    begin: 0.2,
-                                    end: 0,
-                                    curve: Curves.easeOutCubic,
-                                  ),
+                              child: ScrollVisibilityDetector(
+                                detectorKey: Key('services-card-mobile-$index'),
+                                builder: (context, isVisible, child) {
+                                  return child.riseFade(
+                                      isVisible: isVisible, delay: delay);
+                                },
+                                child: _buildServiceCard(
+                                  context,
+                                  services[index],
+                                  index,
+                                ),
+                              ),
                             );
                           }),
                         );
@@ -157,21 +138,19 @@ class _ServicesSectionState extends State<ServicesSection> {
                           ),
                           itemCount: services.length,
                           itemBuilder: (context, index) {
-                            return _buildServiceCard(
-                              context,
-                              services[index],
-                              index,
-                            )
-                                .animate(target: _isVisible ? 1 : 0)
-                                .fade(
-                                  delay: (200 + (index * 100)).ms,
-                                  duration: 600.ms,
-                                )
-                                .slideY(
-                                  begin: 0.2,
-                                  end: 0,
-                                  curve: Curves.easeOutCubic,
-                                );
+                            final delay = (200 + (index * 100)).ms;
+                            return ScrollVisibilityDetector(
+                              detectorKey: Key('services-card-tablet-$index'),
+                              builder: (context, isVisible, child) {
+                                return child.riseFade(
+                                    isVisible: isVisible, delay: delay);
+                              },
+                              child: _buildServiceCard(
+                                context,
+                                services[index],
+                                index,
+                              ),
+                            );
                           },
                         );
                       }
@@ -180,27 +159,25 @@ class _ServicesSectionState extends State<ServicesSection> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: List.generate(services.length, (index) {
+                            final delay = (200 + (index * 100)).ms;
                             return Expanded(
                               child: Padding(
                                 padding: EdgeInsets.only(
                                   left: index == 0 ? 0 : 8,
                                   right: index == services.length - 1 ? 0 : 8,
                                 ),
-                                child: _buildServiceCard(
-                                  context,
-                                  services[index],
-                                  index,
-                                )
-                                    .animate(target: _isVisible ? 1 : 0)
-                                    .fade(
-                                      delay: (200 + (index * 100)).ms,
-                                      duration: 600.ms,
-                                    )
-                                    .slideY(
-                                      begin: 0.2,
-                                      end: 0,
-                                      curve: Curves.easeOutCubic,
-                                    ),
+                                child: ScrollVisibilityDetector(
+                                  detectorKey: Key('services-card-desktop-$index'),
+                                  builder: (context, isVisible, child) {
+                                    return child.riseFade(
+                                        isVisible: isVisible, delay: delay);
+                                  },
+                                  child: _buildServiceCard(
+                                    context,
+                                    services[index],
+                                    index,
+                                  ),
+                                ),
                               ),
                             );
                           }),
@@ -213,8 +190,7 @@ class _ServicesSectionState extends State<ServicesSection> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildServiceCard(
@@ -253,9 +229,7 @@ class _ServicesSectionState extends State<ServicesSection> {
                   ),
                 ],
           border: Border.all(
-            color: isHovered
-                ? AppTheme.accentColor.withValues(alpha: 0.3)
-                : const Color(0xFFE8ECF0),
+            color: isHovered ? AppTheme.primaryColor : AppTheme.secondaryColor,
             width: isHovered ? 1.5 : 1,
           ),
         ),
@@ -267,17 +241,14 @@ class _ServicesSectionState extends State<ServicesSection> {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: isHovered
-                    ? AppTheme.accentColor.withValues(alpha: 0.12)
-                    : const Color(0xFFF0F2F5),
+                color:
+                    isHovered ? AppTheme.primaryColor : AppTheme.secondaryColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
-                child: Icon(
+                child: FaIcon(
                   service.icon,
-                  color: isHovered
-                      ? AppTheme.accentColor
-                      : AppTheme.primaryColor.withValues(alpha: 0.7),
+                  color: isHovered ? Colors.white : AppTheme.primaryColor,
                   size: 22,
                 ),
               ),
@@ -287,7 +258,8 @@ class _ServicesSectionState extends State<ServicesSection> {
             Text(
               service.title,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Metropolis',
                 color: AppTheme.primaryColor,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -300,7 +272,8 @@ class _ServicesSectionState extends State<ServicesSection> {
               child: Text(
                 service.description,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Metropolis',
                   color: AppTheme.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
