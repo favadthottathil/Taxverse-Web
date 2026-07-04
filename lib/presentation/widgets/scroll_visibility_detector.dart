@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -49,6 +51,9 @@ class ScrollVisibilityDetectorState extends State<ScrollVisibilityDetector>
 
   bool _isVisible = false;
   bool _canTrigger = false;
+  Timer? _pollTimer;
+  Timer? _pollTimeoutTimer;
+  ScrollPosition? _scrollPosition;
 
   @visibleForTesting
   bool get isVisibleForTesting => _isVisible;
@@ -105,7 +110,64 @@ class ScrollVisibilityDetectorState extends State<ScrollVisibilityDetector>
           _isVisible = true;
         }
       });
+      _startPollingIfNeeded();
     });
+  }
+
+  // Safety net for mobile web: VisibilityDetector recomputes on a post-frame
+  // callback, but some mobile browsers handle momentum/rubber-band scrolling
+  // natively without promptly scheduling a Flutter frame, so a detector far
+  // below the fold can sit unchecked until an unrelated interaction finally
+  // triggers one. On a long section with many stacked detectors (e.g. the
+  // About page's map + 6 feature cards), that reads as content staying
+  // permanently blank instead of appearing on scroll. Polling briefly after
+  // mount closes that gap without depending on any particular event firing.
+  void _startPollingIfNeeded() {
+    if (_isVisible || !mounted) return;
+    _pollTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      if (!mounted || _isVisible) {
+        timer.cancel();
+        return;
+      }
+      if (_hasEnteredRevealZone()) {
+        setState(() => _isVisible = true);
+        timer.cancel();
+      }
+    });
+    // Stop polling after a few seconds regardless — by then the user has
+    // almost certainly scrolled or interacted enough to trigger a real frame,
+    // and we don't want an indefinite timer per off-screen detector. Stored
+    // so dispose() can cancel it too, otherwise it fires (harmlessly, but
+    // untracked) after the widget is gone.
+    _pollTimeoutTimer = Timer(const Duration(seconds: 6), () {
+      _pollTimer?.cancel();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Listen to the enclosing Scrollable's position directly. This is the
+    // authoritative, synchronous signal for "the page moved" — unlike
+    // VisibilityDetector's own callback (which is a best-effort recomputation
+    // that can lag behind on mobile web when momentum scrolling doesn't
+    // promptly schedule a Flutter frame), a ScrollPosition listener fires on
+    // every scroll delta Flutter actually processes, closing the gap that let
+    // far-below-the-fold content (e.g. a map image followed by six feature
+    // cards) stay unrevealed until an unrelated interaction nudged it awake.
+    final newPosition = Scrollable.maybeOf(context)?.position;
+    if (newPosition != _scrollPosition) {
+      _scrollPosition?.removeListener(_onScroll);
+      _scrollPosition = newPosition;
+      _scrollPosition?.addListener(_onScroll);
+    }
+  }
+
+  void _onScroll() {
+    if (!mounted || _isVisible || !_canTrigger) return;
+    if (_hasEnteredRevealZone()) {
+      setState(() => _isVisible = true);
+    }
   }
 
   @override
@@ -131,6 +193,9 @@ class ScrollVisibilityDetectorState extends State<ScrollVisibilityDetector>
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
+    _pollTimeoutTimer?.cancel();
+    _scrollPosition?.removeListener(_onScroll);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
