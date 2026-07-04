@@ -250,7 +250,7 @@ class _ServicesSectionState extends State<ServicesSection> {
           ),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Icon container
             Container(
@@ -283,21 +283,16 @@ class _ServicesSectionState extends State<ServicesSection> {
               ),
             ),
             SizedBox(height: compact ? 6 : 10),
-            // Description fills the remaining card height — every layout
-            // (mobile/tablet grid, desktop row) gives the card a bounded
-            // height via GridView/IntrinsicHeight, so Expanded is safe here.
-            Expanded(
-              child: Text(
-                service.description,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.fade,
-                style: TextStyle(
-                  fontFamily: 'Metropolis',
-                  color: AppTheme.textSecondary,
-                  fontSize: compact ? 11.5 : 13,
-                  fontWeight: FontWeight.w400,
-                  height: 1.5,
-                ),
+            Text(
+              service.description,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.fade,
+              style: TextStyle(
+                fontFamily: 'Metropolis',
+                color: AppTheme.textSecondary,
+                fontSize: compact ? 11.5 : 13,
+                fontWeight: FontWeight.w400,
+                height: 1.5,
               ),
             ),
           ],

@@ -36,7 +36,8 @@ class ScrollVisibilityDetector extends StatefulWidget {
       ScrollVisibilityDetectorState();
 }
 
-class ScrollVisibilityDetectorState extends State<ScrollVisibilityDetector> {
+class ScrollVisibilityDetectorState extends State<ScrollVisibilityDetector>
+    with WidgetsBindingObserver {
   // VisibilityDetector identifies subscribers by key in a process-wide
   // registry. Reusing a constant `detectorKey` across multiple routes (e.g. the
   // footer, which is mounted on every page) makes two detectors collide while
@@ -93,6 +94,7 @@ class ScrollVisibilityDetectorState extends State<ScrollVisibilityDetector> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Use post-frame callback so the geometry is checked immediately after layout,
     // avoiding artificial delay.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -104,6 +106,33 @@ class ScrollVisibilityDetectorState extends State<ScrollVisibilityDetector> {
         }
       });
     });
+  }
+
+  @override
+  void didChangeMetrics() {
+    // On mobile web, the browser chrome (address bar) is often still full-size
+    // at first paint and only collapses once the user starts scrolling. That
+    // shrinks/grows the reported viewport height *after* our initState reveal
+    // check already ran, which can leave an above-the-fold element wrongly
+    // marked not-yet-visible until some unrelated scroll event happens to
+    // re-trigger VisibilityDetector's own callback. Re-checking here (metrics
+    // changes fire independently of VisibilityDetector) closes that gap so
+    // the entrance plays as soon as the real viewport size is known, not on
+    // the next incidental scroll.
+    if (!_isVisible && _canTrigger) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (_hasEnteredRevealZone()) {
+          setState(() => _isVisible = true);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
