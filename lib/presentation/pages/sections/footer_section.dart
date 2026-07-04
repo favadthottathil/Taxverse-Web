@@ -67,6 +67,30 @@ class _FooterSectionState extends State<FooterSection> {
                               ],
                             );
                           }
+                          if (sizingInformation.isTablet) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildCompanyInfo(context)
+                                    .riseFade(isVisible: isVisible),
+                                const SizedBox(height: 48),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: _buildQuickLinks(context).riseFade(
+                                          isVisible: isVisible, delay: 100.ms),
+                                    ),
+                                    const SizedBox(width: 48),
+                                    Expanded(
+                                      child: _buildContactInfo(context).riseFade(
+                                          isVisible: isVisible, delay: 200.ms),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          }
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

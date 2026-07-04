@@ -239,41 +239,43 @@ class _HeaderNavState extends State<HeaderNav> {
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 350),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          decoration: BoxDecoration(
-            color: isTransparent
-                ? Colors.transparent
-                : Colors.white.withValues(alpha: 0.85),
-            boxShadow: isTransparent
-                ? []
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 12,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-            border: isTransparent
-                ? null
-                : Border(
-                    bottom: BorderSide(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      width: 1,
-                    ),
-                  ),
-          ),
-          child: ResponsiveBuilder(
-            builder: (context, sizingInformation) {
-              if (sizingInformation.isDesktop) {
-                return _buildDesktopNav(context);
-              }
-              return _buildMobileNav(context);
-            },
-          ),
+        child: ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeInOut,
+              padding: EdgeInsets.symmetric(
+                horizontal: sizingInformation.isDesktop ? 32 : 20,
+                vertical: 16,
+              ),
+              decoration: BoxDecoration(
+                color: isTransparent
+                    ? Colors.transparent
+                    : Colors.white.withValues(alpha: 0.85),
+                boxShadow: isTransparent
+                    ? []
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 12,
+                          spreadRadius: 0,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                border: isTransparent
+                    ? null
+                    : Border(
+                        bottom: BorderSide(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          width: 1,
+                        ),
+                      ),
+              ),
+              child: sizingInformation.isDesktop
+                  ? _buildDesktopNav(context)
+                  : _buildMobileNav(context),
+            );
+          },
         ),
       ),
     );
@@ -326,58 +328,24 @@ class _HeaderNavState extends State<HeaderNav> {
   }
 
   void _showMobileMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildMobileNavItem('HOME', context),
-                _buildMobileNavItem('ABOUT US', context),
-                _buildMobileNavItem('SERVICES', context),
-                _buildMobileNavItem('CONTACT US', context),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: _buildConsultationButton(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildMobileNavItem(String title, BuildContext context) {
-    final isActive = widget.activeRoute == title;
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-        widget.onNavigate(title);
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-        child: Text(
-          title,
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            color: isActive ? AppTheme.primaryColor : const Color(0xFF374151),
-            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-            fontSize: 16,
-          ),
-        ),
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierDismissible: true,
+        barrierColor: Colors.black.withValues(alpha: 0.45),
+        transitionDuration: const Duration(milliseconds: 280),
+        reverseTransitionDuration: const Duration(milliseconds: 220),
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return _MobileNavPanel(
+            animation: animation,
+            activeRoute: widget.activeRoute,
+            onNavigate: widget.onNavigate,
+            serviceCategories: _megaMenuData,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return child;
+        },
       ),
     );
   }
@@ -489,6 +457,290 @@ class _HeaderNavState extends State<HeaderNav> {
           letterSpacing: 1.0,
           color: isTransparent ? AppTheme.primaryColor : Colors.white,
         ),
+      ),
+    );
+  }
+}
+
+class _MobileNavPanel extends StatefulWidget {
+  final Animation<double> animation;
+  final String activeRoute;
+  final Function(String) onNavigate;
+  final Map<String, List<String>> serviceCategories;
+
+  const _MobileNavPanel({
+    required this.animation,
+    required this.activeRoute,
+    required this.onNavigate,
+    required this.serviceCategories,
+  });
+
+  @override
+  State<_MobileNavPanel> createState() => _MobileNavPanelState();
+}
+
+class _MobileNavPanelState extends State<_MobileNavPanel> {
+  bool _servicesExpanded = false;
+  static const int _visibleItemsPerCategory = 4;
+
+  void _navigate(String route) {
+    Navigator.of(context).pop();
+    widget.onNavigate(route);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double panelWidth = screenWidth < 360
+        ? screenWidth * 0.92
+        : (screenWidth * 0.78).clamp(0.0, 340.0);
+    final curved = CurvedAnimation(
+      parent: widget.animation,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+
+    return Stack(
+      children: [
+        FadeTransition(
+          opacity: curved,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => Navigator.of(context).pop(),
+            child: const SizedBox.expand(),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: Offset.zero,
+            ).animate(curved),
+            child: Material(
+              color: Colors.white,
+              elevation: 16,
+              child: SizedBox(
+                width: panelWidth,
+                height: double.infinity,
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/images/taxverse-logo.svg',
+                              height: 36,
+                              fit: BoxFit.contain,
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                color: AppTheme.primaryColor,
+                                size: 24,
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _navItem('HOME'),
+                              _navItem('ABOUT US'),
+                              _servicesItem(),
+                              _navItem('CONTACT US'),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    20, 20, 20, 8),
+                                child: SizedBox(
+                                  height: 48,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            const ConsultationDialog(),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppTheme.primaryColor,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'BOOK CONSULTATION',
+                                      style: TextStyle(
+                                        fontFamily: 'Metropolis',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 1.0,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _navItem(String title) {
+    final bool isActive = widget.activeRoute == title;
+    return InkWell(
+      onTap: () => _navigate(title),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            color: isActive ? AppTheme.primaryColor : const Color(0xFF374151),
+            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+            fontSize: 15,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _servicesItem() {
+    final bool isActive = widget.activeRoute == 'SERVICES';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _servicesExpanded = !_servicesExpanded),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'SERVICES',
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
+                    color: isActive
+                        ? AppTheme.primaryColor
+                        : const Color(0xFF374151),
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    fontSize: 15,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                AnimatedRotation(
+                  turns: _servicesExpanded ? 0.5 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  child: const Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: Color(0xFF374151),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          child: _servicesExpanded
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: widget.serviceCategories.entries
+                        .map((entry) => _categoryGroup(entry.key, entry.value))
+                        .toList(),
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  Widget _categoryGroup(String category, List<String> items) {
+    final visible = items.take(_visibleItemsPerCategory).toList();
+    final remaining = items.length - visible.length;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 14.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            category.toUpperCase(),
+            style: TextStyle(
+              fontFamily: 'Metropolis',
+              color: AppTheme.primaryColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 11.5,
+              letterSpacing: 0.6,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...visible.map(
+            (service) => InkWell(
+              onTap: () => _navigate('SERVICES|$category'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5.0),
+                child: Text(
+                  service,
+                  style: const TextStyle(
+                    fontFamily: 'Metropolis',
+                    color: Color(0xFF475569),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (remaining > 0)
+            InkWell(
+              onTap: () => _navigate('SERVICES|$category'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5.0),
+                child: Text(
+                  '+$remaining more',
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
+                    color: AppTheme.primaryColor.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

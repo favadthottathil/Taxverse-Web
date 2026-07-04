@@ -9,7 +9,7 @@ class AppMotion {
   const AppMotion._();
 
   /// Snappy, professional entrance animation duration.
-  static const Duration duration = Duration(milliseconds: 400);
+  static const Duration duration = Duration(milliseconds: 700);
 
   /// Vertical travel as a fraction of the widget height — small so it reads as
   /// a subtle rise rather than a jump.
@@ -26,7 +26,7 @@ class AppMotion {
   static const double revealOffset = 0.08;
 
   /// Delay between staggered siblings (cards, steps, features).
-  static Duration stagger(int index) => Duration(milliseconds: 80 * index);
+  static Duration stagger(int index) => Duration(milliseconds: 120 * index);
 }
 
 /// Builds the shared page-transition route used for every named-route

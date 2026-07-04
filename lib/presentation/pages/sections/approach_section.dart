@@ -57,7 +57,7 @@ class _ApproachSectionState extends State<ApproachSection> {
                       children: [
                         // Left – text content
                         Expanded(
-                          child: _buildContent(context),
+                          child: _buildContent(context, sizingInformation),
                         ),
                         const SizedBox(width: 64),
                         // Right – image
@@ -68,7 +68,7 @@ class _ApproachSectionState extends State<ApproachSection> {
                               return child.riseFade(
                                   isVisible: isVisible, delay: 200.ms);
                             },
-                            child: _buildImage(context),
+                            child: _buildImage(context, sizingInformation),
                           ),
                         ),
                       ],
@@ -78,7 +78,7 @@ class _ApproachSectionState extends State<ApproachSection> {
                   // Mobile / Tablet – stacked
                   return Column(
                     children: [
-                      _buildContent(context),
+                      _buildContent(context, sizingInformation),
                       const SizedBox(height: 48),
                       ScrollVisibilityDetector(
                         detectorKey: const Key('approach-image-mobile-detector'),
@@ -86,7 +86,7 @@ class _ApproachSectionState extends State<ApproachSection> {
                           return child.riseFade(
                               isVisible: isVisible, delay: 200.ms);
                         },
-                        child: _buildImage(context),
+                        child: _buildImage(context, sizingInformation),
                       ),
                     ],
                   );
@@ -98,7 +98,8 @@ class _ApproachSectionState extends State<ApproachSection> {
       );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(
+      BuildContext context, SizingInformation sizingInformation) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -125,6 +126,7 @@ class _ApproachSectionState extends State<ApproachSection> {
                         color: const Color(0xFF1A1A2E),
                         fontWeight: FontWeight.w800,
                         height: 1.2,
+                        fontSize: sizingInformation.isDesktop ? 36 : 28,
                       ),
                 ).riseFade(isVisible: isVisible, delay: 200.ms),
                 const SizedBox(height: 16),
@@ -218,9 +220,14 @@ class _ApproachSectionState extends State<ApproachSection> {
     );
   }
 
-  Widget _buildImage(BuildContext context) {
+  Widget _buildImage(
+      BuildContext context, SizingInformation sizingInformation) {
     return Container(
-      height: 500,
+      height: sizingInformation.isDesktop
+          ? 500
+          : sizingInformation.isTablet
+              ? 380
+              : 260,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         image: const DecorationImage(

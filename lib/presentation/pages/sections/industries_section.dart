@@ -79,102 +79,87 @@ class _IndustriesSectionState extends State<IndustriesSection> {
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  ScrollVisibilityDetector(
-                    detectorKey: const Key('industries-header-detector'),
-                    builder: (context, isVisible, child) {
-                      return Column(
-                        children: [
-                          // Section label
-                          Text(
-                            'INDUSTRIES',
-                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 2.0,
-                                ),
-                          ).riseFade(isVisible: isVisible),
-                          const SizedBox(height: 12),
-                          // Heading
-                          Text(
-                            'Industries We Serve',
-                            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                  color: const Color(0xFF1A1A2E),
-                                  fontWeight: FontWeight.w800,
-                                  height: 1.2,
-                                ),
-                          )
-                              .riseFade(isVisible: isVisible, delay: 200.ms),
-                          const SizedBox(height: 16),
-                          // Description
-                          Text(
-                            'Trusted by businesses across sectors — from early-stage startups to\nestablished enterprises.',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  height: 1.6,
-                                  color: Colors.grey[600],
-                                ),
-                          )
-                              .riseFade(isVisible: isVisible, delay: 400.ms),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 56),
-                  // Industry icons grid
-                  ResponsiveBuilder(
-                    builder: (context, sizingInformation) {
-                      if (sizingInformation.isDesktop) {
-                        // Desktop: single row of 8
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: ResponsiveBuilder(
+                builder: (context, sizingInformation) {
+                  return Column(
+                    children: [
+                      ScrollVisibilityDetector(
+                        detectorKey: const Key('industries-header-detector'),
+                        builder: (context, isVisible, child) {
+                          return Column(
+                            children: [
+                              // Section label
+                              Text(
+                                'INDUSTRIES',
+                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      color: Theme.of(context).primaryColor,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 2.0,
+                                    ),
+                              ).riseFade(isVisible: isVisible),
+                              const SizedBox(height: 12),
+                              // Heading
+                              Text(
+                                'Industries We Serve',
+                                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                      color: const Color(0xFF1A1A2E),
+                                      fontWeight: FontWeight.w800,
+                                      height: 1.2,
+                                      fontSize:
+                                          sizingInformation.isDesktop ? 36 : 28,
+                                    ),
+                              )
+                                  .riseFade(isVisible: isVisible, delay: 200.ms),
+                              const SizedBox(height: 16),
+                              // Description
+                              Text(
+                                'Trusted by businesses across sectors — from early-stage startups to\nestablished enterprises.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      height: 1.6,
+                                      color: Colors.grey[600],
+                                    ),
+                              )
+                                  .riseFade(isVisible: isVisible, delay: 400.ms),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 56),
+                      // Industry icons grid — column count is fixed per
+                      // breakpoint (2 mobile / 4 tablet / 8 desktop) and each
+                      // item's width is derived from the actual available
+                      // width, so it always lands on exactly that many
+                      // columns instead of however many happen to fit.
+                      LayoutBuilder(builder: (context, constraints) {
+                        final columns = sizingInformation.isDesktop
+                            ? 8
+                            : sizingInformation.isTablet
+                                ? 4
+                                : 2;
+                        const spacing = 16.0;
+                        final itemWidth =
+                            (constraints.maxWidth - spacing * (columns - 1)) /
+                                columns;
+                        return Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: spacing,
+                          runSpacing: 32,
                           children: _industries.asMap().entries.map((entry) {
-                            return _buildIndustryItem(
-                              context,
-                              entry.value,
-                              entry.key,
-                            );
-                          }).toList(),
-                        );
-                      }
-                      // Mobile/Tablet: 2 rows of 4
-                      return Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: _industries
-                                .sublist(0, 4)
-                                .asMap()
-                                .entries
-                                .map((entry) {
-                              return _buildIndustryItem(
+                            return SizedBox(
+                              width: itemWidth,
+                              child: _buildIndustryItem(
                                 context,
                                 entry.value,
                                 entry.key,
-                              );
-                            }).toList(),
-                          ),
-                          const SizedBox(height: 32),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: _industries
-                                .sublist(4)
-                                .asMap()
-                                .entries
-                                .map((entry) {
-                              return _buildIndustryItem(
-                                context,
-                                entry.value,
-                                entry.key + 4,
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }),
+                    ],
+                  );
+                },
               ),
             ),
           ),

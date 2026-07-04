@@ -50,12 +50,12 @@ class _AboutSectionState extends State<AboutSection> {
                             builder: (context, isVisible, child) {
                               return child.riseFade(isVisible: isVisible);
                             },
-                            child: _buildMap(context),
+                            child: _buildMap(context, sizingInformation),
                           ),
                         ),
                         const SizedBox(width: 64),
                         Expanded(
-                          child: _buildContent(context),
+                          child: _buildContent(context, sizingInformation),
                         ),
                       ],
                     );
@@ -67,10 +67,10 @@ class _AboutSectionState extends State<AboutSection> {
                         builder: (context, isVisible, child) {
                           return child.riseFade(isVisible: isVisible);
                         },
-                        child: _buildMap(context),
+                        child: _buildMap(context, sizingInformation),
                       ),
                       const SizedBox(height: 48),
-                      _buildContent(context),
+                      _buildContent(context, sizingInformation),
                     ],
                   );
                 },
@@ -81,9 +81,14 @@ class _AboutSectionState extends State<AboutSection> {
       );
   }
 
-  Widget _buildMap(BuildContext context) {
+  Widget _buildMap(
+      BuildContext context, SizingInformation sizingInformation) {
     return Container(
-      height: 500,
+      height: sizingInformation.isDesktop
+          ? 500
+          : sizingInformation.isTablet
+              ? 380
+              : 260,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -104,7 +109,8 @@ class _AboutSectionState extends State<AboutSection> {
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(
+      BuildContext context, SizingInformation sizingInformation) {
     final features = [
       {
         'icon': Icons.workspace_premium_outlined,
@@ -171,6 +177,7 @@ class _AboutSectionState extends State<AboutSection> {
                         color: const Color(0xFF1A1A2E),
                         fontWeight: FontWeight.w800,
                         height: 1.2,
+                        fontSize: sizingInformation.isDesktop ? 36 : 28,
                       ),
                 )
                     .riseFade(isVisible: isVisible, delay: 200.ms),
@@ -189,37 +196,53 @@ class _AboutSectionState extends State<AboutSection> {
           },
         ),
         const SizedBox(height: 36),
-        // Feature grid — 3 rows x 2 columns
-        ...List.generate(3, (rowIndex) {
-          final firstIndex = rowIndex * 2;
-          final secondIndex = rowIndex * 2 + 1;
-          return Padding(
-            padding: EdgeInsets.only(bottom: rowIndex < 2 ? 24 : 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildFeatureCard(
-                    context,
-                    features[firstIndex]['icon'] as IconData,
-                    features[firstIndex]['title'] as String,
-                    features[firstIndex]['desc'] as String,
-                    firstIndex,
+        // Feature grid — 2 columns on desktop/tablet, single column on
+        // narrow phones where a 2-up split would squeeze icon + text.
+        if (sizingInformation.isMobile)
+          ...List.generate(features.length, (index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: index < features.length - 1 ? 24 : 0),
+              child: _buildFeatureCard(
+                context,
+                features[index]['icon'] as IconData,
+                features[index]['title'] as String,
+                features[index]['desc'] as String,
+                index,
+              ),
+            );
+          })
+        else
+          ...List.generate(3, (rowIndex) {
+            final firstIndex = rowIndex * 2;
+            final secondIndex = rowIndex * 2 + 1;
+            return Padding(
+              padding: EdgeInsets.only(bottom: rowIndex < 2 ? 24 : 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildFeatureCard(
+                      context,
+                      features[firstIndex]['icon'] as IconData,
+                      features[firstIndex]['title'] as String,
+                      features[firstIndex]['desc'] as String,
+                      firstIndex,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 24),
-                Expanded(
-                  child: _buildFeatureCard(
-                    context,
-                    features[secondIndex]['icon'] as IconData,
-                    features[secondIndex]['title'] as String,
-                    features[secondIndex]['desc'] as String,
-                    secondIndex,
+                  const SizedBox(width: 24),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      context,
+                      features[secondIndex]['icon'] as IconData,
+                      features[secondIndex]['title'] as String,
+                      features[secondIndex]['desc'] as String,
+                      secondIndex,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }),
+                ],
+              ),
+            );
+          }),
       ],
     );
   }
@@ -234,6 +257,11 @@ class _AboutSectionState extends State<AboutSection> {
     final delay = (index % 2 * 150).ms;
     return ScrollVisibilityDetector(
       detectorKey: Key('about-feature-card-$index'),
+      // Once revealed, stay revealed — a short list like this one shouldn't
+      // ever reset back to invisible from a transient near-zero visibility
+      // reading (e.g. a fast scroll or a layout hiccup during a parent's own
+      // entrance transition), which would otherwise leave it stuck blank.
+      animateOnce: true,
       builder: (context, isVisible, child) {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,

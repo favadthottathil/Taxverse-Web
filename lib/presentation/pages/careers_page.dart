@@ -89,63 +89,73 @@ class _CareersHeroBanner extends StatelessWidget {
       width: double.infinity,
       color: AppTheme.primaryColor,
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 24),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: ConstrainedBox(
-          constraints:
-              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CAREERS',
-                  style: TextStyle(
-                    fontFamily: 'Metropolis',
-                    color: AppTheme.accentColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2.0,
-                  ),
-                )
-                    .animate()
-                    .fade(duration: 1600.ms)
-                    .slideY(begin: 0.2, end: 0, duration: 1600.ms),
-                const SizedBox(height: 12),
-                Text(
-                  'Build Your Career with Taxverse',
-                  style: TextStyle(
-                    fontFamily: 'Metropolis',
-                    color: Colors.white,
-                    fontSize: 42,
-                    fontWeight: FontWeight.w800,
-                    height: 1.15,
-                  ),
-                )
-                    .animate()
-                    .fade(delay: 100.ms, duration: 1600.ms)
-                    .slideY(begin: 0.2, end: 0, duration: 1600.ms),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 600,
-                  child: Text(
-                    'Join a team of professionals dedicated to excellence in finance and business services.',
-                    style: TextStyle(
-                      fontFamily: 'Metropolis',
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 16,
-                      height: 1.6,
+      child: ResponsiveBuilder(
+        builder: (context, sizingInformation) {
+          final isDesktop = sizingInformation.isDesktop;
+          return Align(
+            alignment: isDesktop ? Alignment.centerLeft : Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints:
+                  const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: isDesktop
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'CAREERS',
+                      textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
+                        color: AppTheme.accentColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2.0,
+                      ),
+                    )
+                        .animate()
+                        .fade(duration: 1600.ms)
+                        .slideY(begin: 0.2, end: 0, duration: 1600.ms),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Build Your Career with Taxverse',
+                      textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
+                        color: Colors.white,
+                        fontSize: isDesktop ? 42 : 30,
+                        fontWeight: FontWeight.w800,
+                        height: 1.15,
+                      ),
+                    )
+                        .animate()
+                        .fade(delay: 100.ms, duration: 1600.ms)
+                        .slideY(begin: 0.2, end: 0, duration: 1600.ms),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: isDesktop ? 600 : double.infinity,
+                      child: Text(
+                        'Join a team of professionals dedicated to excellence in finance and business services.',
+                        textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Metropolis',
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: isDesktop ? 16 : 15,
+                          height: 1.6,
+                        ),
+                      )
+                          .animate()
+                          .fade(delay: 200.ms, duration: 1600.ms)
+                          .slideY(begin: 0.2, end: 0, duration: 1600.ms),
                     ),
-                  )
-                      .animate()
-                      .fade(delay: 200.ms, duration: 1600.ms)
-                      .slideY(begin: 0.2, end: 0, duration: 1600.ms),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -236,6 +246,49 @@ class _WhyWorkWithUsSectionState extends State<_WhyWorkWithUsSection> {
                                   'Modern Workplace',
                                   'State-of-the-art office with the latest tools, technology, and flexible work arrangements.',
                                   3)),
+                        ],
+                      );
+                    }
+                    if (sizingInformation.isTablet) {
+                      return Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                  child: _buildCard(
+                                      Icons.school_outlined,
+                                      'Learning Culture',
+                                      'Continuous learning through workshops, certifications, and on-the-job training programs.',
+                                      0)),
+                              const SizedBox(width: 24),
+                              Expanded(
+                                  child: _buildCard(
+                                      Icons.groups_outlined,
+                                      'Expert Mentors',
+                                      'Work alongside experienced CAs and industry leaders who guide your professional growth.',
+                                      1)),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                  child: _buildCard(
+                                      Icons.trending_up_outlined,
+                                      'Growth Path',
+                                      'Clear career progression with regular performance reviews and advancement opportunities.',
+                                      2)),
+                              const SizedBox(width: 24),
+                              Expanded(
+                                  child: _buildCard(
+                                      Icons.laptop_mac_outlined,
+                                      'Modern Workplace',
+                                      'State-of-the-art office with the latest tools, technology, and flexible work arrangements.',
+                                      3)),
+                            ],
+                          ),
                         ],
                       );
                     }
@@ -417,10 +470,7 @@ class _OpenPositionsSectionState extends State<_OpenPositionsSection> {
                 const SizedBox(height: 48),
                 ResponsiveBuilder(
                   builder: (context, sizingInformation) {
-                    int crossAxisCount = 1;
-                    if (sizingInformation.isDesktop) {
-                      crossAxisCount = 2;
-                    }
+                    int crossAxisCount = sizingInformation.isMobile ? 1 : 2;
 
                     List<Widget> rows = [];
                     for (var i = 0;
@@ -593,15 +643,17 @@ class _GetInTouchSection extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 700),
-          child: Container(
-            padding: const EdgeInsets.all(40),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Text(
+          child: ResponsiveBuilder(
+            builder: (context, sizingInformation) {
+              return Container(
+                padding: EdgeInsets.all(sizingInformation.isMobile ? 24 : 40),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Text(
                   'Don\'t see the right position?',
                   style: TextStyle(
                     fontFamily: 'Metropolis',
@@ -657,12 +709,14 @@ class _GetInTouchSection extends StatelessWidget {
                     ),
                   ],
                 ),
-              ],
-            ),
-          )
-              .animate()
-              .fade(duration: 1600.ms)
-              .slideY(begin: 0.1, end: 0, duration: 1600.ms),
+                  ],
+                ),
+              )
+                  .animate()
+                  .fade(duration: 1600.ms)
+                  .slideY(begin: 0.1, end: 0, duration: 1600.ms);
+            },
+          ),
         ),
       ),
     );

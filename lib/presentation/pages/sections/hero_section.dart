@@ -96,9 +96,7 @@ class _HeroSectionState extends State<HeroSection> {
                     builder: (context, isVisible, child) {
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: sizingInformation.isDesktop
-                            ? CrossAxisAlignment.start
-                            : CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'ESTABLISHED 2020',
@@ -127,13 +125,15 @@ class _HeroSectionState extends State<HeroSection> {
                                 ),
                               ],
                             ),
-                            textAlign: sizingInformation.isDesktop
-                                ? TextAlign.left
-                                : TextAlign.center,
+                            textAlign: TextAlign.left,
                             style: TextStyle(
                               fontFamily: 'Metropolis',
                               color: Colors.white,
-                              fontSize: sizingInformation.isDesktop ? 50 : 34,
+                              fontSize: sizingInformation.isDesktop
+                                  ? 50
+                                  : sizingInformation.isTablet
+                                      ? 42
+                                      : 34,
                               height: 1.1,
                               fontWeight: FontWeight.w800,
                             ),
@@ -144,9 +144,7 @@ class _HeroSectionState extends State<HeroSection> {
                                 sizingInformation.isDesktop ? 700 : double.infinity,
                             child: Text(
                               'Professional accounting, tax advisory, and CFO services combining regulatory expertise with intelligent automation.',
-                              textAlign: sizingInformation.isDesktop
-                                  ? TextAlign.left
-                                  : TextAlign.center,
+                              textAlign: TextAlign.left,
                               style: TextStyle(
                                   fontFamily: 'Metropolis',
                                   color: Colors.white.withValues(alpha: 0.85),
@@ -161,9 +159,7 @@ class _HeroSectionState extends State<HeroSection> {
                               direction: sizingInformation.isMobile
                                   ? Axis.vertical
                                   : Axis.horizontal,
-                              mainAxisAlignment: sizingInformation.isDesktop
-                                  ? MainAxisAlignment.start
-                                  : MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: sizingInformation.isMobile
                                   ? CrossAxisAlignment.stretch
                                   : CrossAxisAlignment.center,
@@ -244,13 +240,26 @@ class _HeroSectionState extends State<HeroSection> {
 
   Widget _buildStatsRow(bool isMobile, bool isVisible) {
     if (isMobile) {
-      return Column(
+      // Equal thirds so long labels ("Years of Excellence") wrap within
+      // their own column instead of forcing the row wider than the screen.
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatItem(6, '+', 'Years of Excellence', false, isVisible, const Duration(milliseconds: 400)),
-          const SizedBox(height: 24),
-          _buildStatItem(2000, '+', 'Clients Served', true, isVisible, const Duration(milliseconds: 600)),
-          const SizedBox(height: 24),
-          _buildStatItem(500, '+', 'Registrations', false, isVisible, const Duration(milliseconds: 800)),
+          Expanded(
+            child: _buildStatItem(6, '+', 'Years of Excellence', false,
+                isVisible, const Duration(milliseconds: 400),
+                fontSize: 26),
+          ),
+          Expanded(
+            child: _buildStatItem(2000, '+', 'Clients Served', true,
+                isVisible, const Duration(milliseconds: 600),
+                fontSize: 26),
+          ),
+          Expanded(
+            child: _buildStatItem(500, '+', 'Registrations', false,
+                isVisible, const Duration(milliseconds: 800),
+                fontSize: 26),
+          ),
         ],
       );
     }
@@ -267,17 +276,26 @@ class _HeroSectionState extends State<HeroSection> {
     );
   }
 
-  Widget _buildStatItem(
-      int targetValue, String suffix, String label, bool useComma, bool isVisible, Duration delay) {
+  Widget _buildStatItem(int targetValue, String suffix, String label,
+      bool useComma, bool isVisible, Duration delay,
+      {double fontSize = 40}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _CountUpText(
-          targetValue: targetValue,
-          suffix: suffix,
-          useComma: useComma,
-          animate: isVisible,
-          delay: delay,
+        // FittedBox guarantees the number never wraps mid-digit even if a
+        // narrow column (e.g. a third of the screen on mobile) makes
+        // [fontSize] a hair too big for a given device.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: _CountUpText(
+            targetValue: targetValue,
+            suffix: suffix,
+            useComma: useComma,
+            animate: isVisible,
+            delay: delay,
+            fontSize: fontSize,
+          ),
         ),
         Text(
           label,
@@ -295,6 +313,7 @@ class _CountUpText extends StatefulWidget {
   final bool useComma;
   final bool animate;
   final Duration delay;
+  final double fontSize;
 
   const _CountUpText({
     required this.targetValue,
@@ -302,6 +321,7 @@ class _CountUpText extends StatefulWidget {
     required this.useComma,
     required this.animate,
     required this.delay,
+    this.fontSize = 40,
   });
 
   @override
@@ -369,9 +389,9 @@ class _CountUpTextState extends State<_CountUpText>
         final currentValue = (_animation.value * widget.targetValue).round();
         return Text(
           '${_formatNumber(currentValue)}${widget.suffix}',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppTheme.accentColor,
-            fontSize: 40,
+            fontSize: widget.fontSize,
             fontWeight: FontWeight.w600,
           ),
         );

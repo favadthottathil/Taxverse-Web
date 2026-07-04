@@ -348,13 +348,15 @@ class _ServicesPageState extends State<ServicesPage> {
           children: [
             Icon(data.icon, color: AppTheme.accentColor, size: 28),
             const SizedBox(width: 12),
-            Text(
-              name,
-              style: TextStyle(
-                fontFamily: 'Metropolis',
-                color: AppTheme.primaryColor,
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
+            Flexible(
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontFamily: 'Metropolis',
+                  color: AppTheme.primaryColor,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -527,63 +529,73 @@ class _ServicesHeroBanner extends StatelessWidget {
       width: double.infinity,
       color: AppTheme.primaryColor,
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 24),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: ConstrainedBox(
-          constraints:
-              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'SERVICES',
-                  style: TextStyle(
-                    fontFamily: 'Metropolis',
-                    color: AppTheme.accentColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2.0,
-                  ),
-                )
-                    .animate()
-                    .fade(duration: 1600.ms)
-                    .slideY(begin: 0.2, end: 0, duration: 1600.ms),
-                const SizedBox(height: 12),
-                Text(
-                  'What We Offer',
-                  style: TextStyle(
-                    fontFamily: 'Metropolis',
-                    color: Colors.white,
-                    fontSize: 42,
-                    fontWeight: FontWeight.w800,
-                    height: 1.15,
-                  ),
-                )
-                    .animate()
-                    .fade(delay: 100.ms, duration: 1600.ms)
-                    .slideY(begin: 0.2, end: 0, duration: 1600.ms),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 600,
-                  child: Text(
-                    'Comprehensive financial, legal, and business services tailored to your needs.',
-                    style: TextStyle(
-                      fontFamily: 'Metropolis',
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 16,
-                      height: 1.6,
+      child: ResponsiveBuilder(
+        builder: (context, sizingInformation) {
+          final isDesktop = sizingInformation.isDesktop;
+          return Align(
+            alignment: isDesktop ? Alignment.centerLeft : Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints:
+                  const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: isDesktop
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'SERVICES',
+                      textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
+                        color: AppTheme.accentColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2.0,
+                      ),
+                    )
+                        .animate()
+                        .fade(duration: 1600.ms)
+                        .slideY(begin: 0.2, end: 0, duration: 1600.ms),
+                    const SizedBox(height: 12),
+                    Text(
+                      'What We Offer',
+                      textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
+                        color: Colors.white,
+                        fontSize: isDesktop ? 42 : 30,
+                        fontWeight: FontWeight.w800,
+                        height: 1.15,
+                      ),
+                    )
+                        .animate()
+                        .fade(delay: 100.ms, duration: 1600.ms)
+                        .slideY(begin: 0.2, end: 0, duration: 1600.ms),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: isDesktop ? 600 : double.infinity,
+                      child: Text(
+                        'Comprehensive financial, legal, and business services tailored to your needs.',
+                        textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Metropolis',
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: isDesktop ? 16 : 15,
+                          height: 1.6,
+                        ),
+                      )
+                          .animate()
+                          .fade(delay: 200.ms, duration: 1600.ms)
+                          .slideY(begin: 0.2, end: 0, duration: 1600.ms),
                     ),
-                  )
-                      .animate()
-                      .fade(delay: 200.ms, duration: 1600.ms)
-                      .slideY(begin: 0.2, end: 0, duration: 1600.ms),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

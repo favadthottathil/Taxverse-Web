@@ -246,7 +246,11 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
     List<TestimonialEntity> testimonials,
   ) {
     final width = MediaQuery.of(context).size.width;
-    final cardsPerPage = width >= 900 ? 2 : 1;
+    // Must match the `sizingInformation.isDesktop` threshold used by the
+    // ResponsiveBuilder above (desktop breakpoint = 1024, set in main.dart),
+    // otherwise this and the rendered carousel disagree on cardsPerPage in
+    // the 900-1024px tablet window and the page/dot state desyncs.
+    final cardsPerPage = width >= 1024 ? 2 : 1;
     return (testimonials.length / cardsPerPage).ceil();
   }
 

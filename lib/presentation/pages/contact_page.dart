@@ -128,13 +128,15 @@ class _ContactPageState extends State<ContactPage> {
             builder: (context, isVisible, child) {
               return ResponsiveBuilder(
                 builder: (context, sizingInformation) {
-                  if (sizingInformation.isDesktop) {
+                  // Tablet has enough width for the same side-by-side split
+                  // as desktop — only phones need the stacked fallback.
+                  if (!sizingInformation.isMobile) {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           flex: 3,
-                          child: _buildContactForm()
+                          child: _buildContactForm(sizingInformation)
                               .riseFade(isVisible: isVisible),
                         ),
                         const SizedBox(width: 48),
@@ -149,7 +151,8 @@ class _ContactPageState extends State<ContactPage> {
                   }
                   return Column(
                     children: [
-                      _buildContactForm().riseFade(isVisible: isVisible),
+                      _buildContactForm(sizingInformation)
+                          .riseFade(isVisible: isVisible),
                       const SizedBox(height: 48),
                       _buildContactInfo().riseFade(
                           isVisible: isVisible, delay: AppMotion.stagger(1)),
@@ -164,9 +167,9 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _buildContactForm() {
+  Widget _buildContactForm(SizingInformation sizingInformation) {
     return Container(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(sizingInformation.isMobile ? 20 : 32),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -637,61 +640,71 @@ class _ContactHeroBanner extends StatelessWidget {
       width: double.infinity,
       color: AppTheme.primaryColor,
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 24),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppConstants.desktopMaxWidth,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: ScrollVisibilityDetector(
-              detectorKey: const Key('contact-hero-detector'),
-              animateOnce: true,
-              builder: (context, isVisible, child) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CONTACT',
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        color: AppTheme.accentColor,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2.0,
-                      ),
-                    ).riseFade(isVisible: isVisible),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Get In Touch',
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        color: Colors.white,
-                        fontSize: 42,
-                        fontWeight: FontWeight.w800,
-                        height: 1.15,
-                      ),
-                    ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: 600,
-                      child: Text(
-                        'Have a question or ready to get started? Reach out to our team today.',
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 16,
-                          height: 1.6,
+      child: ResponsiveBuilder(
+        builder: (context, sizingInformation) {
+          final isDesktop = sizingInformation.isDesktop;
+          return Align(
+            alignment: isDesktop ? Alignment.centerLeft : Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: AppConstants.desktopMaxWidth,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: ScrollVisibilityDetector(
+                  detectorKey: const Key('contact-hero-detector'),
+                  animateOnce: true,
+                  builder: (context, isVisible, child) {
+                    return Column(
+                      crossAxisAlignment: isDesktop
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'CONTACT',
+                          textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            color: AppTheme.accentColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 2.0,
+                          ),
+                        ).riseFade(isVisible: isVisible),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Get In Touch',
+                          textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            color: Colors.white,
+                            fontSize: isDesktop ? 42 : 30,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
+                          ),
+                        ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: isDesktop ? 600 : double.infinity,
+                          child: Text(
+                            'Have a question or ready to get started? Reach out to our team today.',
+                            textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: isDesktop ? 16 : 15,
+                              height: 1.6,
+                            ),
+                          ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
                         ),
-                      ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
-                    ),
-                  ],
-                );
-              },
+                      ],
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

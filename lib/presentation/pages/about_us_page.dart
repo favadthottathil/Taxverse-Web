@@ -93,60 +93,71 @@ class _AboutHeroBanner extends StatelessWidget {
       width: double.infinity,
       color: AppTheme.primaryColor,
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 24),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: ConstrainedBox(
-          constraints:
-              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: ScrollVisibilityDetector(
-              detectorKey: const Key('about-hero-detector'),
-              animateOnce: true,
-              builder: (context, isVisible, child) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'ABOUT US',
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        color: AppTheme.accentColor,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2.0,
-                      ),
-                    ).riseFade(isVisible: isVisible),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Our Story of Excellence',
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        color: Colors.white,
-                        fontSize: 42,
-                        fontWeight: FontWeight.w800,
-                        height: 1.15,
-                      ),
-                    ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: 600,
-                      child: Text(
-                        'Over 6 years of trust, expertise, and unwavering commitment to our clients\' success.',
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 16,
-                          height: 1.6,
+      child: ResponsiveBuilder(
+        builder: (context, sizingInformation) {
+          final isDesktop = sizingInformation.isDesktop;
+          return Align(
+            alignment:
+                isDesktop ? Alignment.centerLeft : Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints:
+                  const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: ScrollVisibilityDetector(
+                  detectorKey: const Key('about-hero-detector'),
+                  animateOnce: true,
+                  builder: (context, isVisible, child) {
+                    return Column(
+                      crossAxisAlignment: isDesktop
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'ABOUT US',
+                          textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            color: AppTheme.accentColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 2.0,
+                          ),
+                        ).riseFade(isVisible: isVisible),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Our Story of Excellence',
+                          textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            color: Colors.white,
+                            fontSize: isDesktop ? 42 : 30,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
+                          ),
+                        ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: isDesktop ? 600 : double.infinity,
+                          child: Text(
+                            'Over 6 years of trust, expertise, and unwavering commitment to our clients\' success.',
+                            textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: isDesktop ? 16 : 15,
+                              height: 1.6,
+                            ),
+                          ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
                         ),
-                      ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
-                    ),
-                  ],
-                );
-              },
+                      ],
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -176,13 +187,15 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
             builder: (context, isVisible, child) {
               return ResponsiveBuilder(
                 builder: (context, sizingInformation) {
-                  if (sizingInformation.isDesktop) {
+                  if (!sizingInformation.isMobile) {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(flex: 5, child: _buildTextContent(isVisible)),
                         const SizedBox(width: 64),
-                        Expanded(flex: 4, child: _buildStatsGrid(isVisible)),
+                        Expanded(
+                            flex: 4,
+                            child: _buildStatsGrid(isVisible, sizingInformation)),
                       ],
                     );
                   }
@@ -191,7 +204,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                     children: [
                       _buildTextContent(isVisible),
                       const SizedBox(height: 40),
-                      _buildStatsGrid(isVisible),
+                      _buildStatsGrid(isVisible, sizingInformation),
                     ],
                   );
                 },
@@ -262,9 +275,10 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
     );
   }
 
-  Widget _buildStatsGrid(bool isVisible) {
+  Widget _buildStatsGrid(
+      bool isVisible, SizingInformation sizingInformation) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(sizingInformation.isMobile ? 20 : 32),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(12),
@@ -281,6 +295,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                   label: 'Years',
                   animate: isVisible,
                   delay: 400,
+                  valueFontSize: sizingInformation.isMobile ? 28 : 36,
                 ),
               ),
               Expanded(
@@ -291,6 +306,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                   animate: isVisible,
                   useComma: true,
                   delay: 600,
+                  valueFontSize: sizingInformation.isMobile ? 28 : 36,
                 ),
               ),
             ],
@@ -305,6 +321,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                   label: 'Registrations',
                   animate: isVisible,
                   delay: 800,
+                  valueFontSize: sizingInformation.isMobile ? 28 : 36,
                 ),
               ),
               Expanded(
@@ -314,6 +331,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                   label: 'Professionals',
                   animate: isVisible,
                   delay: 1000,
+                  valueFontSize: sizingInformation.isMobile ? 28 : 36,
                 ),
               ),
             ],
@@ -332,6 +350,7 @@ class _AnimatedStatItem extends StatefulWidget {
   final bool animate;
   final bool useComma;
   final int delay;
+  final double valueFontSize;
 
   const _AnimatedStatItem({
     required this.value,
@@ -340,6 +359,7 @@ class _AnimatedStatItem extends StatefulWidget {
     required this.animate,
     this.useComma = false,
     this.delay = 0,
+    this.valueFontSize = 36,
   });
 
   @override
@@ -406,7 +426,7 @@ class _AnimatedStatItemState extends State<_AnimatedStatItem>
               style: TextStyle(
                 fontFamily: 'Metropolis',
                 color: AppTheme.primaryColor,
-                fontSize: 36,
+                fontSize: widget.valueFontSize,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -470,41 +490,41 @@ class _MeetFounderSectionState extends State<_MeetFounderSection> {
                     ),
                   ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
                   const SizedBox(height: 40),
-                  Container(
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ResponsiveBuilder(
-                      builder: (context, sizingInformation) {
-                        if (sizingInformation.isDesktop) {
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildAvatar(),
-                              const SizedBox(width: 32),
-                              Expanded(child: _buildFounderInfo()),
-                            ],
-                          );
-                        }
-                        return Column(
-                          children: [
-                            _buildAvatar(),
-                            const SizedBox(height: 24),
-                            _buildFounderInfo(),
+                  ResponsiveBuilder(
+                    builder: (context, sizingInformation) {
+                      return Container(
+                        padding: EdgeInsets.all(
+                            sizingInformation.isMobile ? 20 : 32),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
                           ],
-                        );
-                      },
-                    ),
+                        ),
+                        child: !sizingInformation.isMobile
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildAvatar(),
+                                  const SizedBox(width: 32),
+                                  Expanded(child: _buildFounderInfo()),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  _buildAvatar(),
+                                  const SizedBox(height: 24),
+                                  _buildFounderInfo(),
+                                ],
+                              ),
+                      );
+                    },
                   ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
                 ],
               );
@@ -625,7 +645,7 @@ class _CoreValuesSectionState extends State<_CoreValuesSection> {
                   const SizedBox(height: 48),
                   ResponsiveBuilder(
                     builder: (context, sizingInformation) {
-                      if (sizingInformation.isDesktop) {
+                      if (!sizingInformation.isMobile) {
                         return Row(
                           children: [
                             Expanded(

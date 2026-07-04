@@ -15,6 +15,13 @@ class ScrollVisibilityDetector extends StatefulWidget {
   final Widget Function(BuildContext context, bool isVisible, Widget child)?
   builder;
 
+  // `detectorKey` doubles as the widget's real Flutter `key` so Flutter
+  // reconciles each instance by its intended identity instead of by its
+  // position in the parent's children list. Without this, a list whose
+  // shape changes across rebuilds (e.g. a ResponsiveBuilder branch swap, or
+  // a hot reload during development) can hand a child's slot to the wrong
+  // State object, leaving `_isVisible` stuck at false for that position —
+  // the item silently never animates in.
   const ScrollVisibilityDetector({
     required this.detectorKey,
     this.child,
@@ -22,8 +29,7 @@ class ScrollVisibilityDetector extends StatefulWidget {
     this.duration = AppMotion.duration,
     this.delay = Duration.zero,
     this.builder,
-    super.key,
-  });
+  }) : super(key: detectorKey);
 
   @override
   State<ScrollVisibilityDetector> createState() =>
