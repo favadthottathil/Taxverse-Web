@@ -1,11 +1,11 @@
 {
-    "name": "taxverse_portfolio",
-    "short_name": "taxverse_portfolio",
+    "name": "Taxverse",
+    "short_name": "Taxverse",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F8FAFC",
+    "theme_color": "#034A3C",
+    "description": "Professional accounting, tax advisory, and CFO services.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

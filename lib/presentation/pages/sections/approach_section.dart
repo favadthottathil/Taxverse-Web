@@ -231,7 +231,7 @@ class _ApproachSectionState extends State<ApproachSection> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         image: const DecorationImage(
-          image: AssetImage('assets/images/business-meeting.png'),
+          image: AssetImage('assets/images/business-meeting.jpg'),
           fit: BoxFit.cover,
         ),
         boxShadow: [

@@ -282,30 +282,23 @@ class _HeaderNavState extends State<HeaderNav> {
   }
 
   Widget _buildDesktopNav(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: AppConstants.desktopMaxWidth,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildLogo(context),
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _buildLogo(context),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildNavItem('HOME', true),
-                _buildNavItem('ABOUT US', true),
-                _buildNavItem('SERVICES', true),
-                // _buildNavItem('CAREERS', true),
-                _buildNavItem('CONTACT US', true),
-                const SizedBox(width: 28),
-                _buildConsultationButton(),
-              ],
-            ),
+            _buildNavItem('HOME', true),
+            _buildNavItem('ABOUT US', true),
+            _buildNavItem('SERVICES', true),
+            // _buildNavItem('CAREERS', true),
+            _buildNavItem('CONTACT US', true),
+            const SizedBox(width: 28),
+            _buildConsultationButton(),
           ],
         ),
-      ),
+      ],
     );
   }
 

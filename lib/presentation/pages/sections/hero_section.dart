@@ -57,21 +57,40 @@ class _HeroSectionState extends State<HeroSection> {
         constraints: BoxConstraints(
           minHeight: MediaQuery.of(context).size.height,
         ),
-        decoration: BoxDecoration(
-          color: AppTheme.backgroundColor,
-          image: DecorationImage(
-            image: const AssetImage(
-              'assets/images/hero-bg.jpg',
+        color: AppTheme.backgroundColor,
+        child: Stack(
+          fit: StackFit.passthrough,
+          children: [
+            Positioned.fill(
+              child: ColorFiltered(
+                colorFilter: const ColorFilter.mode(
+                  Color(0xEE034A3C),
+                  BlendMode.darken,
+                ),
+                child: Align(
+                  alignment: Alignment(
+                      0, -1.0 + (_scrollOffset / 800).clamp(0.0, 2.0)),
+                  child: Image.asset(
+                    'assets/images/hero-bg.jpg',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    // Fades the photo in once decoded instead of a hard pop-in,
+                    // so the hero doesn't visibly "snap" once the asset loads.
+                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                      if (wasSynchronouslyLoaded) return child;
+                      return AnimatedOpacity(
+                        opacity: frame == null ? 0 : 1,
+                        duration: AppMotion.duration,
+                        curve: AppMotion.curve,
+                        child: child,
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
-            fit: BoxFit.cover,
-            alignment: Alignment(0, -1.0 + (_scrollOffset / 800).clamp(0.0, 2.0)),
-            colorFilter: const ColorFilter.mode(
-              Color(0xEE034A3C),
-              BlendMode.darken,
-            ),
-          ),
-        ),
-        child: ResponsiveBuilder(
+            ResponsiveBuilder(
           builder: (context, sizingInformation) {
             double horizontalPadding = sizingInformation.isDesktop ? 0 : 24;
             double verticalPadding = sizingInformation.isDesktop ? 80 : 40;
@@ -235,7 +254,9 @@ class _HeroSectionState extends State<HeroSection> {
               );
             },
           ),
-        );
+          ],
+        ),
+    );
   }
 
   Widget _buildStatsRow(bool isMobile, bool isVisible) {

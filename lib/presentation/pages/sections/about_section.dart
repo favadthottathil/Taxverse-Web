@@ -102,7 +102,7 @@ class _AboutSectionState extends State<AboutSection> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Image.asset(
-          'assets/images/business-meeting.png',
+          'assets/images/business-meeting.jpg',
           fit: BoxFit.cover,
         ),
       ),

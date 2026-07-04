@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -18,21 +18,57 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Taxverse — professional accounting, tax advisory, and CFO services.">
+  <meta name="theme-color" content="#F8FAFC">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="taxverse_portfolio">
+  <meta name="apple-mobile-web-app-title" content="Taxverse">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>taxverse_portfolio</title>
+  <title>Taxverse</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Splash screen shown while the Flutter engine downloads and boots.
+       Colors match AppTheme so the handoff to the real app has no flash. */
+    #app-splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F8FAFC;
+      z-index: 9999;
+      transition: opacity 0.35s ease-out;
+    }
+    #app-splash .spinner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid rgba(3, 74, 60, 0.15);
+      border-top-color: #034A3C;
+      animation: app-splash-spin 0.8s linear infinite;
+    }
+    @keyframes app-splash-spin {
+      to { transform: rotate(360deg); }
+    }
+    #app-splash.app-splash-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
+  <div id="app-splash">
+    <div class="spinner"></div>
+  </div>
+
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader
@@ -41,6 +77,14 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var splash = document.getElementById('app-splash');
+      if (!splash) return;
+      splash.classList.add('app-splash-hidden');
+      setTimeout(function () { splash.remove(); }, 400);
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
