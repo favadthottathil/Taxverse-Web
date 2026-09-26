@@ -65,7 +65,9 @@ class TaxverseApp extends StatelessWidget {
             return buildPageRoute(settings, (context) => const ContactPage());
           case '/privacy':
             return buildPageRoute(
-                settings, (context) => const PrivacyPolicyPage());
+              settings,
+              (context) => const PrivacyPolicyPage(),
+            );
           case '/terms':
             return buildPageRoute(settings, (context) => const TermsPage());
           case '/':
