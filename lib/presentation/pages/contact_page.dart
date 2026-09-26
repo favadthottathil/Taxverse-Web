@@ -522,7 +522,7 @@ class _ContactPageState extends State<ContactPage> {
         _buildInfoCard(
           Icons.access_time_outlined,
           'Business Hours',
-          'Monday - Saturday: 9:30 AM - 6:00 PM\nSunday: Closed',
+          'Monday - Saturday: 9:30 AM - 5:30 PM\nSunday: Closed',
         ),
         const SizedBox(height: 24),
         const _ContactMap(),
