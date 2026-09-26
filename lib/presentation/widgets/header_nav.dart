@@ -8,17 +8,24 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/constants.dart';
 import '../../core/theme.dart';
 import 'consultation_dialog.dart';
+import 'tap_target.dart';
 
 class HeaderNav extends StatefulWidget {
   final Function(String) onNavigate;
   final String activeRoute;
   final bool isScrolled;
 
+  /// Blur the content scrolling behind the header. Only worthwhile when the
+  /// header overlays the scroll view (Home); pages that lay it out above the
+  /// scroll view have nothing behind it to blur.
+  final bool blurBackdrop;
+
   const HeaderNav({
     super.key,
     required this.onNavigate,
     this.activeRoute = 'HOME',
     this.isScrolled = true,
+    this.blurBackdrop = false,
   });
 
   @override
@@ -26,6 +33,11 @@ class HeaderNav extends StatefulWidget {
 }
 
 class _HeaderNavState extends State<HeaderNav> {
+  static final ImageFilter _blurFilter = ImageFilter.blur(
+    sigmaX: 10,
+    sigmaY: 10,
+  );
+
   String? _hoveredItem;
   OverlayEntry? _megaMenuOverlay;
   bool _isHoveringMenu = false;
@@ -38,11 +50,7 @@ class _HeaderNavState extends State<HeaderNav> {
       'Internal Audit',
       'Tax Audit',
       'Stock Audit',
-      'Concurrent Audit',
-      'Bank Audit',
-      'Revenue Audit',
       'Management Audit',
-      'Due Diligence',
     ],
     'Taxation': [
       'Income Tax Returns (Individuals)',
@@ -50,8 +58,6 @@ class _HeaderNavState extends State<HeaderNav> {
       'TDS Filing & Compliance',
       'GST Returns & Filing',
       'GST Audit',
-      'International Taxation',
-      'Transfer Pricing',
       'Tax Planning & Advisory',
       'Tax Notices & Litigation',
     ],
@@ -61,7 +67,6 @@ class _HeaderNavState extends State<HeaderNav> {
       'Payroll Processing',
       'MIS Reporting',
       'Financial Statement Preparation',
-      'Virtual CFO Services',
     ],
     'Registrations': [
       'Company Incorporation (Pvt Ltd)',
@@ -81,17 +86,14 @@ class _HeaderNavState extends State<HeaderNav> {
       'MSME/Udyam Registration',
       'Startup India Registration',
       '12A & 80G Registration (NGO)',
-      'FCRA Registration',
     ],
     'Consulting & Advisory': [
       'Business Setup Advisory',
       'Project Financing',
       'Bank Loan Assistance',
-      'Financial Due Diligence',
+      'Virtual CFO Services',
       'Business Valuation',
-      'FEMA & RBI Compliance',
       'Company Law Advisory',
-      'Mergers & Acquisitions',
     ],
     'IP & Others': [
       'Trademark Registration',
@@ -99,8 +101,6 @@ class _HeaderNavState extends State<HeaderNav> {
       'Patent Filing',
       'ISO Certification',
       'ROC Filings & Compliance',
-      'Labour Law Compliance',
-      'RERA Advisory',
     ],
   };
 
@@ -133,85 +133,91 @@ class _HeaderNavState extends State<HeaderNav> {
               _isHoveringMenu = false;
               _hideMegaMenuDelayed();
             },
-            child: Material(
-              elevation: 4,
-              color: Colors.white,
-              child: Container(
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                  ),
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: AppConstants.desktopMaxWidth +
-                          160, // Slight expansion to let columns breathe
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 32,
-                        horizontal: 24,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: _megaMenuData.entries.map((entry) {
-                          return Expanded(
+            child:
+                Material(
+                      elevation: 4,
+                      color: Colors.white,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                          ),
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxWidth:
+                                  AppConstants.desktopMaxWidth +
+                                  160, // Slight expansion to let columns breathe
+                            ),
                             child: Padding(
-                              padding: const EdgeInsets.only(right: 12),
-                              child: Column(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 32,
+                                horizontal: 24,
+                              ),
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    entry.key,
-                                    style: TextStyle(
-                                      fontFamily: 'Metropolis',
-                                      color: AppTheme.primaryColor,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    height: 1,
-                                    width: double.infinity,
-                                    color: AppTheme.accentColor
-                                        .withValues(alpha: 0.3),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  ...entry.value.map(
-                                    (service) => Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 8,
+                                children: _megaMenuData.entries.map((entry) {
+                                  return Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 12),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            entry.key,
+                                            style: TextStyle(
+                                              fontFamily: 'Metropolis',
+                                              color: AppTheme.primaryColor,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            height: 1,
+                                            width: double.infinity,
+                                            color: AppTheme.accentColor
+                                                .withValues(alpha: 0.3),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          ...entry.value.map(
+                                            (service) => Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: 8,
+                                              ),
+                                              child: _MegaMenuServiceItem(
+                                                title: service,
+                                                onTap: () {
+                                                  widget.onNavigate(
+                                                    'SERVICES|${entry.key}',
+                                                  );
+                                                  _megaMenuOverlay?.remove();
+                                                  _megaMenuOverlay = null;
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      child: _MegaMenuServiceItem(
-                                        title: service,
-                                        onTap: () {
-                                          widget.onNavigate(
-                                            'SERVICES|${entry.key}',
-                                          );
-                                          _megaMenuOverlay?.remove();
-                                          _megaMenuOverlay = null;
-                                        },
-                                      ),
                                     ),
-                                  ),
-                                ],
+                                  );
+                                }).toList(),
                               ),
                             ),
-                          );
-                        }).toList(),
+                          ),
+                        ),
                       ),
+                    )
+                    .animate()
+                    .fade(duration: 200.ms)
+                    .slideY(
+                      begin: -0.02,
+                      end: 0,
+                      duration: 200.ms,
+                      curve: Curves.easeOut,
                     ),
-                  ),
-                ),
-              ),
-            ).animate().fade(duration: 200.ms).slideY(
-                  begin: -0.02,
-                  end: 0,
-                  duration: 200.ms,
-                  curve: Curves.easeOut,
-                ),
           ),
         );
       },
@@ -234,11 +240,13 @@ class _HeaderNavState extends State<HeaderNav> {
   @override
   Widget build(BuildContext context) {
     final bool isTransparent = !widget.isScrolled;
-    final double blurSigma = isTransparent ? 0.0 : 10.0;
 
     return ClipRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+        // Only blur when content actually scrolls beneath the header. `enabled`
+        // false skips the backdrop layer entirely instead of blurring at 0.
+        enabled: widget.blurBackdrop && !isTransparent,
+        filter: _blurFilter,
         child: ResponsiveBuilder(
           builder: (context, sizingInformation) {
             return AnimatedContainer(
@@ -309,6 +317,7 @@ class _HeaderNavState extends State<HeaderNav> {
       children: [
         _buildLogo(context),
         IconButton(
+          tooltip: 'Open menu',
           icon: Icon(
             Icons.menu,
             color: isTransparent ? Colors.white : AppTheme.primaryColor,
@@ -350,8 +359,9 @@ class _HeaderNavState extends State<HeaderNav> {
       hoverColor: Colors.transparent,
       child: SvgPicture.asset(
         'assets/images/taxverse-logo.svg',
-        height: 48,
+        height: 56,
         fit: BoxFit.contain,
+        semanticsLabel: 'Taxverse home',
         colorFilter: isTransparent
             ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
             : null,
@@ -382,8 +392,10 @@ class _HeaderNavState extends State<HeaderNav> {
         }
       },
       cursor: SystemMouseCursors.click,
-      child: GestureDetector(
+      child: TapTarget(
         onTap: () => widget.onNavigate(title),
+        isLink: true,
+        focusColor: isTransparent ? Colors.white : AppTheme.primaryColor,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Row(
@@ -394,10 +406,16 @@ class _HeaderNavState extends State<HeaderNav> {
                 style: TextStyle(
                   fontFamily: 'Metropolis',
                   color: isActive
-                      ? (isTransparent ? AppTheme.accentColor : AppTheme.primaryColor)
+                      ? (isTransparent
+                            ? AppTheme.accentColor
+                            : AppTheme.primaryColor)
                       : isHovered
-                          ? (isTransparent ? AppTheme.accentColor : AppTheme.primaryColor)
-                          : (isTransparent ? Colors.white : const Color(0xFF374151)),
+                      ? (isTransparent
+                            ? AppTheme.accentColor
+                            : AppTheme.primaryColor)
+                      : (isTransparent
+                            ? Colors.white
+                            : const Color(0xFF374151)),
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   fontSize: 13,
                   letterSpacing: 0.5,
@@ -413,8 +431,12 @@ class _HeaderNavState extends State<HeaderNav> {
                     Icons.keyboard_arrow_down,
                     size: 16,
                     color: isActive || isHovered || _megaMenuOverlay != null
-                        ? (isTransparent ? AppTheme.accentColor : AppTheme.primaryColor)
-                        : (isTransparent ? Colors.white70 : const Color(0xFF374151)),
+                        ? (isTransparent
+                              ? AppTheme.accentColor
+                              : AppTheme.primaryColor)
+                        : (isTransparent
+                              ? Colors.white70
+                              : const Color(0xFF374151)),
                   ),
                 ),
               ],
@@ -527,10 +549,12 @@ class _MobileNavPanelState extends State<_MobileNavPanel> {
                           children: [
                             SvgPicture.asset(
                               'assets/images/taxverse-logo.svg',
-                              height: 36,
+                              height: 44,
                               fit: BoxFit.contain,
+                              semanticsLabel: 'Taxverse',
                             ),
                             IconButton(
+                              tooltip: 'Close menu',
                               icon: const Icon(
                                 Icons.close,
                                 color: AppTheme.primaryColor,
@@ -554,7 +578,11 @@ class _MobileNavPanelState extends State<_MobileNavPanel> {
                               _navItem('CONTACT US'),
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(
-                                    20, 20, 20, 8),
+                                  20,
+                                  20,
+                                  20,
+                                  8,
+                                ),
                                 child: SizedBox(
                                   height: 48,
                                   child: ElevatedButton(
@@ -627,37 +655,42 @@ class _MobileNavPanelState extends State<_MobileNavPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        InkWell(
-          onTap: () => setState(() => _servicesExpanded = !_servicesExpanded),
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'SERVICES',
-                  style: TextStyle(
-                    fontFamily: 'Metropolis',
-                    color: isActive
-                        ? AppTheme.primaryColor
-                        : const Color(0xFF374151),
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                    fontSize: 15,
-                    letterSpacing: 0.3,
+        Semantics(
+          expanded: _servicesExpanded,
+          child: InkWell(
+            onTap: () => setState(() => _servicesExpanded = !_servicesExpanded),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 15.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'SERVICES',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      color: isActive
+                          ? AppTheme.primaryColor
+                          : const Color(0xFF374151),
+                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                      fontSize: 15,
+                      letterSpacing: 0.3,
+                    ),
                   ),
-                ),
-                AnimatedRotation(
-                  turns: _servicesExpanded ? 0.5 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOut,
-                  child: const Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 20,
-                    color: Color(0xFF374151),
+                  AnimatedRotation(
+                    turns: _servicesExpanded ? 0.5 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOut,
+                    child: const Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: Color(0xFF374151),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -726,7 +759,7 @@ class _MobileNavPanelState extends State<_MobileNavPanel> {
                   '+$remaining more',
                   style: TextStyle(
                     fontFamily: 'Metropolis',
-                    color: AppTheme.primaryColor.withValues(alpha: 0.6),
+                    color: AppTheme.primaryColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 12.5,
                   ),

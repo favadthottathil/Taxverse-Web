@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/constants.dart';
 import '../../core/theme.dart';
+import '../../core/validators.dart';
+import 'consent_checkbox.dart';
+import 'form_field_focus.dart';
 
 class ConsultationDialog extends StatefulWidget {
   const ConsultationDialog({super.key});
@@ -15,6 +20,16 @@ class _ConsultationDialogState extends State<ConsultationDialog> {
   final _phoneController = TextEditingController();
   final _timeController = TextEditingController();
   String? _selectedService;
+  bool _launchFailed = false;
+
+  // One per field, in visual order, so a failed submit can focus the first error.
+  final _nameField = FormFieldFocus<String>();
+  final _phoneField = FormFieldFocus<String>();
+  final _serviceField = FormFieldFocus<String>();
+  final _timeField = FormFieldFocus<String>();
+  final _consentField = FormFieldFocus<bool>();
+
+  static const String _requiredMessage = 'Please fill out this field.';
 
   final List<String> _services = [
     'Audit & Assurance',
@@ -31,30 +46,54 @@ class _ConsultationDialogState extends State<ConsultationDialog> {
     _nameController.dispose();
     _phoneController.dispose();
     _timeController.dispose();
+    _nameField.dispose();
+    _phoneField.dispose();
+    _serviceField.dispose();
+    _timeField.dispose();
+    _consentField.dispose();
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text.trim();
-      final phone = _phoneController.text.trim();
-      final service = _selectedService ?? 'Not specified';
-      final time = _timeController.text.trim();
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) {
+      focusFirstInvalid([
+        _nameField,
+        _phoneField,
+        _serviceField,
+        _timeField,
+        _consentField,
+      ]);
+      return;
+    }
 
-      final message = 'Hello Taxverse,\n\n'
-          'I would like to *Book a Consultation*.\n\n'
-          '*Name:* $name\n'
-          '*Phone:* $phone\n'
-          '*Service:* $service\n'
-          '*Preferred Time:* $time\n\n'
-          'Looking forward to hearing from you. Thank you!';
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final service = _selectedService ?? 'Not specified';
+    final time = _timeController.text.trim();
 
-      final encodedMessage = Uri.encodeComponent(message);
-      final whatsappUrl = 'https://wa.me/918129613322?text=$encodedMessage';
+    final message =
+        'Hello Taxverse,\n\n'
+        'I would like to *Book a Consultation*.\n\n'
+        '*Name:* $name\n'
+        '*Phone:* $phone\n'
+        '*Service:* $service\n'
+        '*Preferred Time:* $time\n\n'
+        'Looking forward to hearing from you. Thank you!';
 
-      launchUrl(Uri.parse(whatsappUrl), mode: LaunchMode.externalApplication);
+    final encodedMessage = Uri.encodeComponent(message);
+    final whatsappUrl =
+        'https://wa.me/${AppConstants.whatsappNumber}?text=$encodedMessage';
 
+    final launched = await launchUrl(
+      Uri.parse(whatsappUrl),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!mounted) return;
+    if (launched) {
       Navigator.of(context).pop();
+    } else {
+      // Keep the dialog (and what the user typed) so they can retry.
+      setState(() => _launchFailed = true);
     }
   }
 
@@ -67,208 +106,273 @@ class _ConsultationDialogState extends State<ConsultationDialog> {
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       backgroundColor: Colors.white,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Semantics(
+        scopesRoute: true,
+        namesRoute: true,
+        label: 'Book a Consultation',
+        explicitChildNodes: true,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              // Lets the browser autofill name / phone as one group.
+              child: AutofillGroup(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Book a Consultation',
-                              style: TextStyle(
-                                fontFamily: 'Metropolis',
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.primaryColor,
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Semantics(
+                                  header: true,
+                                  child: Text(
+                                    'Book a Consultation',
+                                    style: TextStyle(
+                                      fontFamily: 'Metropolis',
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.primaryColor,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Fill in your details and our team will get back to you as soon as possible.',
+                                  style: TextStyle(
+                                    fontFamily: 'Metropolis',
+                                    fontSize: 14,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Fill in your details and our team will reach out within 24 hours.',
-                              style: TextStyle(
-                                fontFamily: 'Metropolis',
-                                fontSize: 14,
-                                color: AppTheme.textSecondary,
-                              ),
+                          ),
+                          IconButton(
+                            tooltip: 'Close',
+                            icon: const Icon(
+                              Icons.close,
+                              size: 20,
+                              color: AppTheme.textSecondary,
                             ),
-                          ],
+                            onPressed: () => Navigator.of(context).pop(),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Full Name
+                      _labelled(
+                        'Full Name',
+                        _buildTextField(
+                          field: _nameField,
+                          controller: _nameController,
+                          autofocus: true,
+                          autofillHints: const [AutofillHints.name],
+                          hintText: 'Your name',
+                          maxLength: Validators.maxNameLength,
+                          validator: (value) =>
+                              Validators.required(value, _requiredMessage),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          size: 20,
-                          color: AppTheme.textSecondary,
-                        ),
-                        onPressed: () => Navigator.of(context).pop(),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
+                      const SizedBox(height: 20),
 
-                  // Full Name
-                  _buildLabel('Full Name'),
-                  _buildTextField(
-                    controller: _nameController,
-                    hintText: 'Your name',
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Please fill out this field.'
-                        : null,
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Phone
-                  _buildLabel('Phone'),
-                  _buildTextField(
-                    controller: _phoneController,
-                    hintText: '+91 XXXXX XXXXX',
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Please fill out this field.'
-                        : null,
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Service
-                  _buildLabel('Service'),
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      hoverColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                    ),
-                    child: DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      focusColor: Colors.transparent,
-                      initialValue: _selectedService,
-                      hint: Text(
-                        'Select a service',
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          fontSize: 14,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                      icon: const Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppTheme.textSecondary,
-                      ),
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        fontSize: 14,
-                        color: AppTheme.textPrimary,
-                      ),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE2E8F0),
+                      // Phone
+                      _labelled(
+                        'Phone',
+                        _buildTextField(
+                          field: _phoneField,
+                          controller: _phoneController,
+                          autofillHints: const [AutofillHints.telephoneNumber],
+                          hintText: '+91 XXXXX XXXXX',
+                          keyboardType: TextInputType.phone,
+                          maxLength: Validators.maxPhoneLength,
+                          validator: (value) => Validators.phone(
+                            value,
+                            emptyMessage: _requiredMessage,
                           ),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE2E8F0),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
                       ),
-                      items: _services.map((service) {
-                        return DropdownMenuItem<String>(
-                          value: service,
-                          child: _HoverDropdownItem(text: service),
-                        );
-                      }).toList(),
-                      selectedItemBuilder: (BuildContext context) {
-                        return _services.map<Widget>((String item) {
-                          return Text(
-                            item,
+                      const SizedBox(height: 20),
+
+                      // Service
+                      _buildLabel('Service'),
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          hoverColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                        ),
+                        child: DropdownButtonFormField<String>(
+                          key: _serviceField.key,
+                          focusNode: _serviceField.node,
+                          isExpanded: true,
+                          focusColor: Colors.transparent,
+                          initialValue: _selectedService,
+                          hint: Text(
+                            'Select a service',
                             style: TextStyle(
                               fontFamily: 'Metropolis',
                               fontSize: 14,
-                              color: AppTheme.textPrimary,
+                              color: AppTheme.textSecondary,
                             ),
-                          );
-                        }).toList();
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedService = value;
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? 'Please fill out this field.' : null,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Preferred Time
-                  _buildLabel('Preferred Time'),
-                  _buildTextField(
-                    controller: _timeController,
-                    hintText: 'e.g., Weekday mornings',
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Please fill out this field.'
-                        : null,
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme
-                            .accentColor, // Updated to use the theme's accent color
-                        foregroundColor: AppTheme.primaryColor,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          ),
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: AppTheme.textSecondary,
+                          ),
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            fontSize: 14,
+                            color: AppTheme.textPrimary,
+                          ),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF7C8BA1),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF7C8BA1),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
+                          items: _services.map((service) {
+                            return DropdownMenuItem<String>(
+                              value: service,
+                              child: _HoverDropdownItem(text: service),
+                            );
+                          }).toList(),
+                          selectedItemBuilder: (BuildContext context) {
+                            return _services.map<Widget>((String item) {
+                              return Text(
+                                item,
+                                style: TextStyle(
+                                  fontFamily: 'Metropolis',
+                                  fontSize: 14,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              );
+                            }).toList();
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedService = value;
+                            });
+                          },
+                          validator: (value) => value == null
+                              ? 'Please fill out this field.'
+                              : null,
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: Text(
-                        'Submit Request',
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                      const SizedBox(height: 20),
+
+                      // Preferred Time
+                      _labelled(
+                        'Preferred Time',
+                        _buildTextField(
+                          field: _timeField,
+                          controller: _timeController,
+                          // Last text field: Enter submits the form.
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _submit(),
+                          hintText: 'e.g., Weekday mornings',
+                          maxLength: Validators.maxShortTextLength,
+                          validator: (value) =>
+                              Validators.required(value, _requiredMessage),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 24),
+
+                      ConsentCheckbox(
+                        key: _consentField.key,
+                        focusNode: _consentField.node,
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Submit Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme
+                                .accentColor, // Updated to use the theme's accent color
+                            foregroundColor: AppTheme.primaryColor,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: Text(
+                            'Submit Request',
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_launchFailed) ...[
+                        const SizedBox(height: 12),
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            'Could not open WhatsApp. Please try again or call us.',
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              fontSize: 13,
+                              color: Colors.red.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Pairs a visible [label] with its [field] as one semantics node so screen
+  /// readers announce the label when the input is focused.
+  Widget _labelled(String label, Widget field) {
+    return MergeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [_buildLabel(label), field],
       ),
     );
   }
@@ -289,31 +393,49 @@ class _ConsultationDialogState extends State<ConsultationDialog> {
   }
 
   Widget _buildTextField({
+    required FormFieldFocus<String> field,
     required TextEditingController controller,
     required String hintText,
     required String? Function(String?) validator,
+    required int maxLength,
+    TextInputType? keyboardType,
+    TextInputAction textInputAction = TextInputAction.next,
+    Iterable<String>? autofillHints,
+    ValueChanged<String>? onSubmitted,
+    bool autofocus = false,
   }) {
     return TextFormField(
+      key: field.key,
+      focusNode: field.node,
+      autofocus: autofocus,
       controller: controller,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      autofillHints: autofillHints,
+      onFieldSubmitted: onSubmitted,
+      inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
       validator: validator,
       style: TextStyle(
-          fontFamily: 'Metropolis', fontSize: 14, color: AppTheme.textPrimary),
+        fontFamily: 'Metropolis',
+        fontSize: 14,
+        color: AppTheme.textPrimary,
+      ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(
           fontFamily: 'Metropolis',
           fontSize: 14,
-          color: AppTheme.textSecondary.withValues(alpha: 0.6),
+          color: AppTheme.textSecondary.withValues(alpha: 0.85),
         ),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: const BorderSide(color: Color(0xFF7C8BA1)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: const BorderSide(color: Color(0xFF7C8BA1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
