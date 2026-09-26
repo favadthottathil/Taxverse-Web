@@ -203,7 +203,7 @@ class HeroSection extends StatelessWidget {
         children: [
           Expanded(
             child: _buildStatItem(
-              3,
+              2,
               '+',
               'Years of Excellence',
               false,
@@ -244,7 +244,7 @@ class HeroSection extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.start,
       children: [
         _buildStatItem(
-          3,
+          2,
           '+',
           'Years of Excellence',
           false,
