@@ -19,7 +19,7 @@ class AppTheme {
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
         secondary: secondaryColor,
-        error: Colors.redAccent,
+        error: Color(0xFFB91C1C),
         surface: backgroundColor,
       ),
       textTheme: const TextTheme(
@@ -87,7 +87,7 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: highlightColor,
         secondary: accentColor,
-        error: Colors.redAccent,
+        error: Color(0xFFB91C1C),
         surface: darkSurface,
       ),
       textTheme: const TextTheme(
