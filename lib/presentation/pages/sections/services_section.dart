@@ -10,17 +10,10 @@ import '../../providers/content_provider.dart';
 import '../../../domain/entities/service_entity.dart';
 import '../../widgets/scroll_visibility_detector.dart';
 
-class ServicesSection extends StatefulWidget {
+class ServicesSection extends StatelessWidget {
   final bool animate;
 
   const ServicesSection({super.key, this.animate = true});
-
-  @override
-  State<ServicesSection> createState() => _ServicesSectionState();
-}
-
-class _ServicesSectionState extends State<ServicesSection> {
-  int _hoveredIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -34,189 +27,214 @@ class _ServicesSectionState extends State<ServicesSection> {
       );
     }
     return Container(
-        color: const Color(0xFFF7F8FA),
-        padding: const EdgeInsets.symmetric(vertical: 100),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppConstants.desktopMaxWidth,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  ResponsiveBuilder(
-                    builder: (context, sizingInformation) {
-                      final isDesktop = sizingInformation.isDesktop;
-                      return ScrollVisibilityDetector(
-                        detectorKey: const Key('services-header-detector'),
-                        builder: (context, isVisible, child) {
-                          return Column(
-                            children: [
-                              // "WHAT WE DO" label
-                              Text(
-                                'WHAT WE DO',
-                                style: TextStyle(
-                                  fontFamily: 'Metropolis',
-                                  color: AppTheme.primaryColor,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 2.0,
-                                ),
-                              )
-                                  .riseFade(isVisible: isVisible),
-                              const SizedBox(height: 16),
-                              // "Our Core Services" heading
-                              Text(
-                                'Our Core Services',
+      color: const Color(0xFFF7F8FA),
+      padding: const EdgeInsets.symmetric(vertical: 100),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: AppConstants.desktopMaxWidth,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                ResponsiveBuilder(
+                  builder: (context, sizingInformation) {
+                    final isDesktop = sizingInformation.isDesktop;
+                    return ScrollVisibilityDetector(
+                      detectorKey: const Key('services-header-detector'),
+                      builder: (context, isVisible, child) {
+                        return Column(
+                          children: [
+                            // "WHAT WE DO" label
+                            Text(
+                              'WHAT WE DO',
+                              style: TextStyle(
+                                fontFamily: 'Metropolis',
+                                color: AppTheme.primaryColor,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 2.0,
+                              ),
+                            ).riseFade(isVisible: isVisible),
+                            const SizedBox(height: 16),
+                            // "Our Core Services" heading
+                            Text(
+                              'Our Core Services',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'Metropolis',
+                                color: AppTheme.primaryColor,
+                                fontSize: isDesktop ? 42 : 30,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ).riseFade(isVisible: isVisible),
+                            const SizedBox(height: 20),
+                            // Subtitle
+                            SizedBox(
+                              width: isDesktop ? 700 : double.infinity,
+                              child: Text(
+                                'From tax compliance and accounting to financial advisory, we provide reliable solutions to keep your business compliant, organized, and ready for growth.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: 'Metropolis',
-                                  color: AppTheme.primaryColor,
-                                  fontSize: isDesktop ? 42 : 30,
-                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.textSecondary,
+                                  fontSize: isDesktop ? 16 : 15,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.6,
                                 ),
-                              )
-                                  .riseFade(isVisible: isVisible),
-                              const SizedBox(height: 20),
-                              // Subtitle
-                              SizedBox(
-                                width: isDesktop ? 700 : double.infinity,
-                                child: Text(
-                                  'From startup registration to enterprise-level audits — we deliver end-to-end financial solutions tailored to your business stage.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'Metropolis',
-                                    color: AppTheme.textSecondary,
-                                    fontSize: isDesktop ? 16 : 15,
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.6,
-                                  ),
-                                ),
-                              )
-                                  .riseFade(isVisible: isVisible, delay: 200.ms),
-                            ],
+                              ),
+                            ).riseFade(isVisible: isVisible, delay: 200.ms),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 60),
+                // Service cards
+                ResponsiveBuilder(
+                  builder: (context, sizingInformation) {
+                    if (sizingInformation.isMobile) {
+                      // Mobile: 2-column grid of compact tiles.
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.72,
+                            ),
+                        itemCount: services.length,
+                        itemBuilder: (context, index) {
+                          final delay = (200 + (index * 100)).ms;
+                          return ScrollVisibilityDetector(
+                            detectorKey: Key('services-card-mobile-$index'),
+                            builder: (context, isVisible, child) {
+                              return child.riseFade(
+                                isVisible: isVisible,
+                                delay: delay,
+                              );
+                            },
+                            child: _ServiceCard(
+                              service: services[index],
+                              compact: true,
+                            ),
                           );
                         },
                       );
-                    },
-                  ),
-                  const SizedBox(height: 60),
-                  // Service cards
-                  ResponsiveBuilder(
-                    builder: (context, sizingInformation) {
-                      if (sizingInformation.isMobile) {
-                        // Mobile: 2-column grid of compact tiles.
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.72,
-                          ),
-                          itemCount: services.length,
-                          itemBuilder: (context, index) {
-                            final delay = (200 + (index * 100)).ms;
-                            return ScrollVisibilityDetector(
-                              detectorKey: Key('services-card-mobile-$index'),
-                              builder: (context, isVisible, child) {
-                                return child.riseFade(
-                                    isVisible: isVisible, delay: delay);
-                              },
-                              child: _buildServiceCard(
-                                context,
-                                services[index],
-                                index,
-                                compact: true,
-                              ),
-                            );
-                          },
-                        );
-                      }
+                    }
 
-                      if (sizingInformation.isTablet) {
-                        // Tablet: 3-column grid
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 20,
-                            mainAxisSpacing: 20,
-                            childAspectRatio: 0.85,
-                          ),
-                          itemCount: services.length,
-                          itemBuilder: (context, index) {
-                            final delay = (200 + (index * 100)).ms;
-                            return ScrollVisibilityDetector(
-                              detectorKey: Key('services-card-tablet-$index'),
-                              builder: (context, isVisible, child) {
-                                return child.riseFade(
-                                    isVisible: isVisible, delay: delay);
-                              },
-                              child: _buildServiceCard(
-                                context,
-                                services[index],
-                                index,
-                              ),
-                            );
-                          },
-                        );
-                      }
-
-                      return IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: List.generate(services.length, (index) {
-                            final delay = (200 + (index * 100)).ms;
-                            return Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  left: index == 0 ? 0 : 8,
-                                  right: index == services.length - 1 ? 0 : 8,
-                                ),
-                                child: ScrollVisibilityDetector(
-                                  detectorKey: Key('services-card-desktop-$index'),
-                                  builder: (context, isVisible, child) {
-                                    return child.riseFade(
-                                        isVisible: isVisible, delay: delay);
-                                  },
-                                  child: _buildServiceCard(
-                                    context,
-                                    services[index],
-                                    index,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
+                    if (sizingInformation.isTablet) {
+                      // Tablet: 3-column grid
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 20,
+                              mainAxisSpacing: 20,
+                              childAspectRatio: 0.85,
+                            ),
+                        itemCount: services.length,
+                        itemBuilder: (context, index) {
+                          final delay = (200 + (index * 100)).ms;
+                          return ScrollVisibilityDetector(
+                            detectorKey: Key('services-card-tablet-$index'),
+                            builder: (context, isVisible, child) {
+                              return child.riseFade(
+                                isVisible: isVisible,
+                                delay: delay,
+                              );
+                            },
+                            child: _ServiceCard(service: services[index]),
+                          );
+                        },
                       );
-                    },
-                  ),
-                ],
-              ),
+                    }
+
+                    return IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: List.generate(services.length, (index) {
+                          final delay = (200 + (index * 100)).ms;
+                          return Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: index == 0 ? 0 : 8,
+                                right: index == services.length - 1 ? 0 : 8,
+                              ),
+                              child: ScrollVisibilityDetector(
+                                detectorKey: Key(
+                                  'services-card-desktop-$index',
+                                ),
+                                builder: (context, isVisible, child) {
+                                  return child.riseFade(
+                                    isVisible: isVisible,
+                                    delay: delay,
+                                  );
+                                },
+                                child: _ServiceCard(service: services[index]),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
+}
+
+/// Owns its own hover state so a hover repaints just this card instead of
+/// rebuilding the whole section (grid, detectors and all sibling cards).
+class _ServiceCard extends StatefulWidget {
+  final ServiceEntity service;
+  final bool compact;
+
+  const _ServiceCard({required this.service, this.compact = false});
+
+  @override
+  State<_ServiceCard> createState() => _ServiceCardState();
+}
+
+class _ServiceCardState extends State<_ServiceCard> {
+  static const _restingShadow = [
+    BoxShadow(color: Color(0x0A000000), blurRadius: 4, offset: Offset(0, 2)),
+  ];
+  static const _hoveredShadow = [
+    BoxShadow(
+      color: Color(0x14000000),
+      blurRadius: 20,
+      spreadRadius: -2,
+      offset: Offset(0, 8),
+    ),
+  ];
+
+  bool _isHovered = false;
+
+  void _setHovered(bool value) {
+    if (_isHovered != value) setState(() => _isHovered = value);
   }
 
-  Widget _buildServiceCard(
-    BuildContext context,
-    ServiceEntity service,
-    int index, {
-    bool compact = false,
-  }) {
-    final isHovered = _hoveredIndex == index;
+  @override
+  Widget build(BuildContext context) {
+    final service = widget.service;
+    final compact = widget.compact;
+    final isHovered = _isHovered;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => _hoveredIndex = index),
-      onExit: (_) => setState(() => _hoveredIndex = -1),
+      onEnter: (_) => _setHovered(true),
+      onExit: (_) => _setHovered(false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
@@ -227,23 +245,7 @@ class _ServicesSectionState extends State<ServicesSection> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: isHovered
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 20,
-                    spreadRadius: -2,
-                    offset: const Offset(0, 8),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 4,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          boxShadow: isHovered ? _hoveredShadow : _restingShadow,
           border: Border.all(
             color: isHovered ? AppTheme.primaryColor : AppTheme.secondaryColor,
             width: isHovered ? 1.5 : 1,
@@ -257,8 +259,9 @@ class _ServicesSectionState extends State<ServicesSection> {
               width: compact ? 44 : 52,
               height: compact ? 44 : 52,
               decoration: BoxDecoration(
-                color:
-                    isHovered ? AppTheme.primaryColor : AppTheme.secondaryColor,
+                color: isHovered
+                    ? AppTheme.primaryColor
+                    : AppTheme.secondaryColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
@@ -270,7 +273,6 @@ class _ServicesSectionState extends State<ServicesSection> {
               ),
             ),
             SizedBox(height: compact ? 12 : 20),
-            // Title
             Text(
               service.title,
               textAlign: TextAlign.center,

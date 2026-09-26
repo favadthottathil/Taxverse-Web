@@ -7,6 +7,7 @@ import '../../../core/constants.dart';
 import '../../../core/motion.dart';
 import '../../../core/theme.dart';
 import '../../providers/content_provider.dart';
+import '../../widgets/tap_target.dart';
 import '../../../domain/entities/testimonial_entity.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -26,6 +27,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
   int _totalPages = 1;
   bool _isAnimating = false;
   bool _isVisible = false;
+  bool _isHovered = false;
 
   // Use AnimationController for smooth, reliable cross-fade transitions
   // instead of PageView which has issues in Flutter web production builds.
@@ -63,19 +65,19 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
 
     _slideOutAnimation =
         Tween<Offset>(begin: Offset.zero, end: const Offset(-0.05, 0)).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.45, curve: Curves.easeIn),
-      ),
-    );
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.0, 0.45, curve: Curves.easeIn),
+          ),
+        );
 
     _slideInAnimation =
         Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.45, 1.0, curve: Curves.easeOut),
-      ),
-    );
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.45, 1.0, curve: Curves.easeOut),
+          ),
+        );
 
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -92,21 +94,23 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
     });
   }
 
-
-
-  void _startAutoScroll(int totalPages) {
-    _totalPages = totalPages;
+  /// Keeps the auto-advance timer in step with reality: it runs only while the
+  /// section is on screen and the pointer isn't over the carousel. Every
+  /// trigger (visibility, hover, manual navigation) funnels through here so no
+  /// path can start the timer while it should be stopped. [restart] resets the
+  /// interval, e.g. after the user navigates manually.
+  void _syncAutoScroll({bool restart = false}) {
+    if (!_isVisible || _isHovered) {
+      _autoScrollTimer?.cancel();
+      _autoScrollTimer = null;
+      return;
+    }
+    if (_autoScrollTimer != null && !restart) return;
     _autoScrollTimer?.cancel();
-    _autoScrollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
-      if (!mounted || _isAnimating) return;
-      final next = (_currentPage + 1) % _totalPages;
-      _animateToPage(next);
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 8), (_) {
+      if (!mounted || _isAnimating || _totalPages < 2) return;
+      _animateToPage((_currentPage + 1) % _totalPages);
     });
-  }
-
-  void _stopAutoScroll() {
-    _autoScrollTimer?.cancel();
-    _autoScrollTimer = null;
   }
 
   void _animateToPage(int page) {
@@ -122,7 +126,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
   void _goToPage(int page) {
     _animateToPage(page);
     // Reset timer so it doesn't immediately advance
-    _startAutoScroll(_totalPages);
+    _syncAutoScroll(restart: true);
   }
 
   @override
@@ -144,40 +148,26 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
       );
     }
 
-    if (_isVisible && _autoScrollTimer == null && testimonials.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _autoScrollTimer == null) {
-          _startAutoScroll(_getPageCount(context, testimonials));
-        }
-      });
-    }
-
     return VisibilityDetector(
       key: const Key('testimonials-section-detector'),
       onVisibilityChanged: (info) {
         if (!mounted) return;
         if (info.visibleFraction > 0.05) {
           if (!_isVisible) {
-            setState(() {
-              _isVisible = true;
-            });
-            if (testimonials.isNotEmpty) {
-              _startAutoScroll(_getPageCount(context, testimonials));
-            }
+            setState(() => _isVisible = true);
+            _syncAutoScroll();
           }
         } else if (info.visibleFraction == 0) {
           if (_isVisible) {
-            setState(() {
-              _isVisible = false;
-            });
-            _stopAutoScroll();
+            setState(() => _isVisible = false);
+            _syncAutoScroll();
           }
         }
       },
       child: Container(
-          color: Theme.of(context).colorScheme.surface,
-          padding: const EdgeInsets.symmetric(vertical: 80),
-          child: Center(
+        color: Theme.of(context).colorScheme.surface,
+        padding: const EdgeInsets.symmetric(vertical: 80),
+        child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(
               maxWidth: AppConstants.desktopMaxWidth,
@@ -190,10 +180,10 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                   Text(
                     'TESTIMONIALS',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 2.0,
-                        ),
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2.0,
+                    ),
                   ).riseFade(isVisible: _isVisible),
                   const SizedBox(height: 12),
                   // Heading
@@ -201,20 +191,21 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                     'What Our Clients Say',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: const Color(0xFF1A1A2E),
-                          fontWeight: FontWeight.w800,
-                          height: 1.2,
-                        ),
-                  )
-                      .riseFade(isVisible: _isVisible, delay: 100.ms),
+                      color: const Color(0xFF1A1A2E),
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                    ),
+                  ).riseFade(isVisible: _isVisible, delay: 100.ms),
                   const SizedBox(height: 56),
                   // Carousel with arrows
                   ResponsiveBuilder(
                     builder: (context, sizingInformation) {
-                      final cardsPerPage =
-                          sizingInformation.isDesktop ? 2 : 1;
-                      final totalPages =
-                          (testimonials.length / cardsPerPage).ceil();
+                      final cardsPerPage = sizingInformation.isDesktop ? 2 : 1;
+                      final totalPages = (testimonials.length / cardsPerPage)
+                          .ceil();
+                      // Read by the auto-advance timer; kept current across
+                      // breakpoint changes (1 vs 2 cards per page).
+                      _totalPages = totalPages;
 
                       return Column(
                         children: [
@@ -230,8 +221,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                         ],
                       );
                     },
-                  )
-                      .riseFade(isVisible: _isVisible, delay: 200.ms),
+                  ).riseFade(isVisible: _isVisible, delay: 200.ms),
                 ],
               ),
             ),
@@ -241,25 +231,19 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
     );
   }
 
-  int _getPageCount(
-    BuildContext context,
-    List<TestimonialEntity> testimonials,
-  ) {
-    final width = MediaQuery.of(context).size.width;
-    // Must match the `sizingInformation.isDesktop` threshold used by the
-    // ResponsiveBuilder above (desktop breakpoint = 1024, set in main.dart),
-    // otherwise this and the rendered carousel disagree on cardsPerPage in
-    // the 900-1024px tablet window and the page/dot state desyncs.
-    final cardsPerPage = width >= 1024 ? 2 : 1;
-    return (testimonials.length / cardsPerPage).ceil();
-  }
-
   Widget _buildPageContent(
     BuildContext context,
     List<TestimonialEntity> testimonials,
     int cardsPerPage,
-    int pageIndex,
+    int requestedPage,
   ) {
+    // The page index survives a breakpoint change (2 cards/page -> 1 or vice
+    // versa), so clamp it to the current page count to avoid a bad sublist.
+    final lastPage = ((testimonials.length / cardsPerPage).ceil() - 1).clamp(
+      0,
+      testimonials.length,
+    );
+    final pageIndex = requestedPage > lastPage ? lastPage : requestedPage;
     final startIndex = pageIndex * cardsPerPage;
     final endIndex = (startIndex + cardsPerPage).clamp(0, testimonials.length);
     final pageItems = testimonials.sublist(startIndex, endIndex);
@@ -267,16 +251,18 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
-        children: pageItems.asMap().entries.map((entry) {
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                right: entry.key < pageItems.length - 1 ? 24 : 0,
+        children: [
+          for (var i = 0; i < cardsPerPage; i++)
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: i < cardsPerPage - 1 ? 24 : 0),
+                // Empty slot on a short last page keeps card widths uniform.
+                child: i < pageItems.length
+                    ? _buildTestimonialCard(context, pageItems[i])
+                    : const SizedBox.shrink(),
               ),
-              child: _buildTestimonialCard(context, entry.value),
             ),
-          );
-        }).toList(),
+        ],
       ),
     );
   }
@@ -288,59 +274,68 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
     int totalPages,
   ) {
     return SizedBox(
-      height: 300,
+      height: 380,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           // Custom cross-fade carousel - reliable in web production
           MouseRegion(
-            onEnter: (_) => _stopAutoScroll(),
-            onExit: (_) => _startAutoScroll(totalPages),
-            child: AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                if (!_showNext) {
-                  // Static state — just show the current page
-                  return _buildPageContent(
+            onEnter: (_) {
+              _isHovered = true;
+              _syncAutoScroll();
+            },
+            onExit: (_) {
+              _isHovered = false;
+              _syncAutoScroll();
+            },
+            // The transitions below listen to the controller themselves, so
+            // the (expensive, shadowed) card pages are built once per state
+            // change instead of on every animation frame. setState runs when
+            // a transition starts and when it ends, which is all that swaps
+            // this subtree.
+            child: !_showNext
+                // Static state — just show the current page
+                ? _buildPageContent(
                     context,
                     testimonials,
                     cardsPerPage,
                     _displayedPage,
-                  );
-                }
+                  )
                 // Animating — show fade-out old + fade-in new
-                return Stack(
-                  children: [
-                    // Old page fading/sliding out
-                    SlideTransition(
-                      position: _slideOutAnimation,
-                      child: FadeTransition(
-                        opacity: _fadeOutAnimation,
-                        child: _buildPageContent(
-                          context,
-                          testimonials,
-                          cardsPerPage,
-                          _displayedPage,
+                : Stack(
+                    children: [
+                      // Old page fading/sliding out
+                      SlideTransition(
+                        position: _slideOutAnimation,
+                        child: FadeTransition(
+                          opacity: _fadeOutAnimation,
+                          child: RepaintBoundary(
+                            child: _buildPageContent(
+                              context,
+                              testimonials,
+                              cardsPerPage,
+                              _displayedPage,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    // New page fading/sliding in
-                    SlideTransition(
-                      position: _slideInAnimation,
-                      child: FadeTransition(
-                        opacity: _fadeInAnimation,
-                        child: _buildPageContent(
-                          context,
-                          testimonials,
-                          cardsPerPage,
-                          _nextPage,
+                      // New page fading/sliding in
+                      SlideTransition(
+                        position: _slideInAnimation,
+                        child: FadeTransition(
+                          opacity: _fadeInAnimation,
+                          child: RepaintBoundary(
+                            child: _buildPageContent(
+                              context,
+                              testimonials,
+                              cardsPerPage,
+                              _nextPage,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              },
-            ),
+                    ],
+                  ),
           ),
           // Left arrow
           Positioned(
@@ -350,6 +345,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
             child: Center(
               child: _buildArrowButton(
                 icon: Icons.chevron_left,
+                tooltip: 'Previous testimonials',
                 onTap: () {
                   if (_currentPage > 0) _goToPage(_currentPage - 1);
                 },
@@ -365,6 +361,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
             child: Center(
               child: _buildArrowButton(
                 icon: Icons.chevron_right,
+                tooltip: 'Next testimonials',
                 onTap: () {
                   if (_currentPage < totalPages - 1) {
                     _goToPage(_currentPage + 1);
@@ -381,6 +378,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
 
   Widget _buildArrowButton({
     required IconData icon,
+    required String tooltip,
     required VoidCallback onTap,
     required bool enabled,
   }) {
@@ -389,29 +387,34 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
       duration: const Duration(milliseconds: 200),
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: enabled ? onTap : null,
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(
-              icon,
-              size: 22,
-              color:
-                  enabled ? const Color(0xFF1A1A2E) : const Color(0xFFBBBBBB),
+        // The tooltip doubles as the control's accessible name.
+        child: Tooltip(
+          message: tooltip,
+          child: InkWell(
+            onTap: enabled ? onTap : null,
+            borderRadius: BorderRadius.circular(24),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                size: 22,
+                color: enabled
+                    ? const Color(0xFF1A1A2E)
+                    : const Color(0xFFBBBBBB),
+              ),
             ),
           ),
         ),
@@ -424,8 +427,11 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalPages, (index) {
         final isActive = index == _currentPage;
-        return GestureDetector(
+        return TapTarget(
           onTap: () => _goToPage(index),
+          semanticLabel: 'Testimonials page ${index + 1} of $totalPages',
+          selected: isActive,
+          borderRadius: BorderRadius.circular(6),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
@@ -436,7 +442,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
               borderRadius: BorderRadius.circular(5),
               color: isActive
                   ? Theme.of(context).primaryColor
-                  : const Color(0xFFD1D5DB),
+                  : const Color(0xFF8391A5),
             ),
           ),
         );
@@ -467,13 +473,17 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
         mainAxisSize: MainAxisSize.min,
         children: [
           // Quote icon
-          Text(
-            '\u201C\u201D',
-            style: TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.highlightColor.withValues(alpha: 0.7),
-              height: 0.8,
+          // Purely decorative glyph: hidden from screen readers, and exempt
+          // from contrast requirements.
+          ExcludeSemantics(
+            child: Text(
+              '\u201C\u201D',
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.highlightColor.withValues(alpha: 0.7),
+                height: 0.8,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -482,14 +492,24 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
             child: Text(
               '\u201C${testimonial.text}\u201D',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    height: 1.7,
-                    color: const Color(0xFF4B5563),
-                  ),
-              maxLines: 5,
+                height: 1.7,
+                color: const Color(0xFF4B5563),
+              ),
+              maxLines: 6,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () => _showFullTestimonial(context, testimonial),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 32),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text('Read more'),
+          ),
+          const SizedBox(height: 12),
           // Author info
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,19 +517,75 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
               Text(
                 testimonial.author,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
-                    ),
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1A1A2E),
+                ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                testimonial.designation,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
+              if (testimonial.designation.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  testimonial.designation,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFullTestimonial(
+    BuildContext context,
+    TestimonialEntity testimonial,
+  ) {
+    final theme = Theme.of(context);
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        scrollable: true,
+        contentPadding: const EdgeInsets.fromLTRB(28, 24, 28, 8),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '“${testimonial.text}”',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  height: 1.7,
+                  color: const Color(0xFF4B5563),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                testimonial.author,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
+              if (testimonial.designation.isNotEmpty)
+                Text(
+                  testimonial.designation,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.primaryColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
           ),
         ],
       ),

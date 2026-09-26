@@ -6,121 +6,166 @@ import '../../../core/constants.dart';
 import '../../../core/motion.dart';
 import '../../../core/theme.dart';
 import '../../widgets/scroll_visibility_detector.dart';
+import '../../widgets/tap_target.dart';
 
 class FooterSection extends StatefulWidget {
   final Function(String)? onNavigate;
   final bool animate;
 
-  const FooterSection({
-    super.key,
-    this.onNavigate,
-    this.animate = true,
-  });
+  const FooterSection({super.key, this.onNavigate, this.animate = true});
 
   @override
   State<FooterSection> createState() => _FooterSectionState();
 }
 
 class _FooterSectionState extends State<FooterSection> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? Theme.of(context).colorScheme.surface
-            : AppTheme.primaryColor,
-        padding: const EdgeInsets.only(top: 80, bottom: 24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppConstants.desktopMaxWidth,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  ScrollVisibilityDetector(
-                    detectorKey: const Key('footer-content-detector'),
-                    builder: (context, isVisible, child) {
-                      return ResponsiveBuilder(
-                        builder: (context, sizingInformation) {
-                          if (sizingInformation.isDesktop) {
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: _buildCompanyInfo(context)
-                                      .riseFade(isVisible: isVisible),
-                                ),
-                                const SizedBox(width: 48),
-                                Expanded(
-                                  child: _buildQuickLinks(context)
-                                      .riseFade(isVisible: isVisible, delay: 100.ms),
-                                ),
-                                const SizedBox(width: 48),
-                                Expanded(
-                                  child: _buildContactInfo(context)
-                                      .riseFade(isVisible: isVisible, delay: 200.ms),
-                                ),
-                              ],
-                            );
-                          }
-                          if (sizingInformation.isTablet) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildCompanyInfo(context)
-                                    .riseFade(isVisible: isVisible),
-                                const SizedBox(height: 48),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: _buildQuickLinks(context).riseFade(
-                                          isVisible: isVisible, delay: 100.ms),
-                                    ),
-                                    const SizedBox(width: 48),
-                                    Expanded(
-                                      child: _buildContactInfo(context).riseFade(
-                                          isVisible: isVisible, delay: 200.ms),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          }
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).colorScheme.surface
+          : AppTheme.primaryColor,
+      padding: const EdgeInsets.only(top: 80, bottom: 24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: AppConstants.desktopMaxWidth,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                ScrollVisibilityDetector(
+                  detectorKey: const Key('footer-content-detector'),
+                  builder: (context, isVisible, child) {
+                    return ResponsiveBuilder(
+                      builder: (context, sizingInformation) {
+                        if (sizingInformation.isDesktop) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: _buildCompanyInfo(
+                                  context,
+                                ).riseFade(isVisible: isVisible),
+                              ),
+                              const SizedBox(width: 48),
+                              Expanded(
+                                child: _buildQuickLinks(
+                                  context,
+                                ).riseFade(isVisible: isVisible, delay: 100.ms),
+                              ),
+                              const SizedBox(width: 48),
+                              Expanded(
+                                child: _buildContactInfo(
+                                  context,
+                                ).riseFade(isVisible: isVisible, delay: 200.ms),
+                              ),
+                            ],
+                          );
+                        }
+                        if (sizingInformation.isTablet) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildCompanyInfo(context)
-                                  .riseFade(isVisible: isVisible),
+                              _buildCompanyInfo(
+                                context,
+                              ).riseFade(isVisible: isVisible),
                               const SizedBox(height: 48),
-                              _buildQuickLinks(context)
-                                  .riseFade(isVisible: isVisible, delay: 100.ms),
-                              const SizedBox(height: 48),
-                              _buildContactInfo(context)
-                                  .riseFade(isVisible: isVisible, delay: 200.ms),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: _buildQuickLinks(context).riseFade(
+                                      isVisible: isVisible,
+                                      delay: 100.ms,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 48),
+                                  Expanded(
+                                    child: _buildContactInfo(context).riseFade(
+                                      isVisible: isVisible,
+                                      delay: 200.ms,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           );
-                        },
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 64),
-                  const Divider(color: Colors.white24),
-                  const SizedBox(height: 24),
-                  Text(
-                    '© ${2026} Taxverse. All Rights Reserved.',
-                    style: const TextStyle(color: Colors.white54),
-                  ),
-                ],
-              ),
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildCompanyInfo(
+                              context,
+                            ).riseFade(isVisible: isVisible),
+                            const SizedBox(height: 48),
+                            _buildQuickLinks(
+                              context,
+                            ).riseFade(isVisible: isVisible, delay: 100.ms),
+                            const SizedBox(height: 48),
+                            _buildContactInfo(
+                              context,
+                            ).riseFade(isVisible: isVisible, delay: 200.ms),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 64),
+                const Divider(color: Colors.white24),
+                const SizedBox(height: 24),
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 24,
+                  runSpacing: 12,
+                  children: [
+                    const Text(
+                      '© 2026 Taxverse Business Consultancy. All Rights Reserved.',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    Wrap(
+                      spacing: 24,
+                      runSpacing: 12,
+                      children: [
+                        TapTarget(
+                          onTap: () => Navigator.pushNamed(context, '/privacy'),
+                          isLink: true,
+                          focusColor: Colors.white,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              'Privacy Policy',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ),
+                        TapTarget(
+                          onTap: () => Navigator.pushNamed(context, '/terms'),
+                          isLink: true,
+                          focusColor: Colors.white,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              'Terms & Conditions',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildCompanyInfo(BuildContext context) {
@@ -128,16 +173,16 @@ class _FooterSectionState extends State<FooterSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppConstants.appName,
+          'Taxverse Business Consultancy',
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-              ),
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.2,
+          ),
         ),
         const SizedBox(height: 24),
         const Text(
-          'Taxverse provides top-tier finance, tax, and legal consultancy to help you streamline and grow your business with cost-effective, reliable solutions.',
+          'Your trusted partner for tax, accounting, compliance, and financial advisory services, delivering reliable solutions that help your business grow with confidence.',
           style: TextStyle(color: Colors.white70, height: 1.6),
         ),
       ],
@@ -169,9 +214,12 @@ class _FooterSectionState extends State<FooterSection> {
   Widget _buildLinkItem(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: InkWell(
-        onTap:
-            widget.onNavigate != null ? () => widget.onNavigate!(title) : null,
+      child: TapTarget(
+        onTap: widget.onNavigate != null
+            ? () => widget.onNavigate!(title)
+            : null,
+        isLink: true,
+        focusColor: Colors.white,
         child: Text(title, style: const TextStyle(color: Colors.white70)),
       ),
     );

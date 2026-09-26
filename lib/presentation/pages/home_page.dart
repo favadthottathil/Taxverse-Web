@@ -16,6 +16,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const double _scrolledThreshold = 20;
+
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _heroKey = GlobalKey();
   final GlobalKey _aboutKey = GlobalKey();
@@ -23,7 +25,9 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey _testimonialsKey = GlobalKey();
   final GlobalKey _footerKey = GlobalKey();
 
-  bool _isScrolled = false;
+  /// Scoped so crossing the scroll threshold rebuilds only the header, not
+  /// the whole page.
+  final ValueNotifier<bool> _isScrolled = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -33,22 +37,54 @@ class _HomePageState extends State<HomePage> {
 
   void _scrollListener() {
     if (_scrollController.hasClients) {
-      final isScrolled = _scrollController.offset > 20;
-      if (isScrolled != _isScrolled) {
-        setState(() {
-          _isScrolled = isScrolled;
-        });
-      }
+      // ValueNotifier ignores equal values, so this only notifies on a flip.
+      _isScrolled.value = _scrollController.offset > _scrolledThreshold;
     }
   }
 
   void _scrollToSection(GlobalKey key) {
-    if (key.currentContext != null) {
-      Scrollable.ensureVisible(
-        key.currentContext!,
-        duration: const Duration(milliseconds: 1800),
-        curve: Curves.easeInOutCubic,
+    final context = key.currentContext;
+    if (context == null) return;
+    Scrollable.ensureVisible(
+      context,
+      duration: const Duration(milliseconds: 1800),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  void _scrollToServices() => _scrollToSection(_servicesKey);
+
+  /// Shared by the header and footer, which use slightly different labels for
+  /// the same destinations.
+  void _handleNavigate(String section) {
+    if (section.startsWith('SERVICES|')) {
+      Navigator.pushNamed(
+        context,
+        '/services',
+        arguments: section.split('|')[1],
       );
+      return;
+    }
+    switch (section) {
+      case 'Home':
+      case 'HOME':
+        _scrollToSection(_heroKey);
+        break;
+      case 'About':
+      case 'About Us':
+      case 'ABOUT US':
+        Navigator.pushNamed(context, '/about');
+        break;
+      case 'Services':
+      case 'Our Services':
+      case 'SERVICES':
+        _scrollToServices();
+        break;
+      case 'Contact':
+      case 'Contact Us':
+      case 'CONTACT US':
+        Navigator.pushNamed(context, '/contact');
+        break;
     }
   }
 
@@ -65,45 +101,14 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   HeroSection(
                     key: _heroKey,
-                    scrollController: _scrollController,
-                    onServicesClick: () => _scrollToSection(_servicesKey),
+                    onServicesClick: _scrollToServices,
                   ),
                   ServicesSection(key: _servicesKey),
                   AboutSection(key: _aboutKey),
                   const ApproachSection(),
                   const IndustriesSection(),
                   TestimonialsSection(key: _testimonialsKey),
-                  FooterSection(
-                    key: _footerKey,
-                    onNavigate: (section) {
-                      if (section.startsWith('SERVICES|')) {
-                        Navigator.pushNamed(
-                          context,
-                          '/services',
-                          arguments: section.split('|')[1],
-                        );
-                        return;
-                      }
-                      switch (section) {
-                        case 'Home':
-                        case 'HOME':
-                          _scrollToSection(_heroKey);
-                          break;
-                        case 'About Us':
-                        case 'ABOUT US':
-                          Navigator.pushNamed(context, '/about');
-                          break;
-                        case 'Our Services':
-                        case 'SERVICES':
-                          _scrollToSection(_servicesKey);
-                          break;
-                        case 'Contact Us':
-                        case 'CONTACT US':
-                          Navigator.pushNamed(context, '/contact');
-                          break;
-                      }
-                    },
-                  ),
+                  FooterSection(key: _footerKey, onNavigate: _handleNavigate),
                 ],
               ),
             ),
@@ -113,40 +118,14 @@ class _HomePageState extends State<HomePage> {
             top: 0,
             left: 0,
             right: 0,
-            child: HeaderNav(
-              onNavigate: (section) {
-                if (section.startsWith('SERVICES|')) {
-                  Navigator.pushNamed(
-                    context,
-                    '/services',
-                    arguments: section.split('|')[1],
-                  );
-                  return;
-                }
-                switch (section) {
-                  case 'Home':
-                  case 'HOME':
-                    _scrollToSection(_heroKey);
-                    break;
-                  case 'About':
-                  case 'About Us':
-                  case 'ABOUT US':
-                    Navigator.pushNamed(context, '/about');
-                    break;
-                  case 'Services':
-                  case 'Our Services':
-                  case 'SERVICES':
-                    _scrollToSection(_servicesKey);
-                    break;
-                  case 'Contact':
-                  case 'Contact Us':
-                  case 'CONTACT US':
-                    Navigator.pushNamed(context, '/contact');
-                    break;
-                }
-              },
-              activeRoute: 'HOME',
-              isScrolled: _isScrolled,
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _isScrolled,
+              builder: (context, isScrolled, _) => HeaderNav(
+                onNavigate: _handleNavigate,
+                activeRoute: 'HOME',
+                isScrolled: isScrolled,
+                blurBackdrop: true,
+              ),
             ),
           ),
         ],
@@ -158,6 +137,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+    _isScrolled.dispose();
     super.dispose();
   }
 }

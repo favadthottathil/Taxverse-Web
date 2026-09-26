@@ -4,6 +4,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 import '../../../core/constants.dart';
 import '../../../core/motion.dart';
 import '../../widgets/scroll_visibility_detector.dart';
+import '../../../core/theme.dart';
 
 class IndustriesSection extends StatefulWidget {
   final bool animate;
@@ -26,7 +27,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     {
       'icon': Icons.apartment_outlined,
       'label': 'Real Estate',
-      'color': Color(0xFFF97316), // orange
+      'color': Color(0xFFC2410C), // orange
       'bgColor': Color(0xFFFFF7ED),
     },
     {
@@ -50,13 +51,13 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     {
       'icon': Icons.rocket_launch_outlined,
       'label': 'Startups',
-      'color': Color(0xFFF97316), // orange
+      'color': Color(0xFFC2410C), // orange
       'bgColor': Color(0xFFFFF7ED),
     },
     {
       'icon': Icons.volunteer_activism_outlined,
       'label': 'NGOs',
-      'color': Color(0xFF10B981), // green
+      'color': Color(0xFF047857), // green
       'bgColor': Color(0xFFECFDF5),
     },
     {
@@ -117,7 +118,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       height: 1.6,
-                                      color: Colors.grey[600],
+                                      color: AppTheme.textSecondary,
                                     ),
                               )
                                   .riseFade(isVisible: isVisible, delay: 400.ms),
