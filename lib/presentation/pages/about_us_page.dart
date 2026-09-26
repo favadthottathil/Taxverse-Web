@@ -25,7 +25,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
     }
     switch (section) {
       case 'HOME':
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
         break;
       case 'ABOUT US':
         _scrollController.animateTo(
@@ -64,7 +64,6 @@ class _AboutUsPageState extends State<AboutUsPage> {
                 children: [
                   const _AboutHeroBanner(),
                   const _BuildingTrustSection(),
-                  const _MeetFounderSection(),
                   const _CoreValuesSection(),
                   FooterSection(onNavigate: _handleNavigate),
                 ],
@@ -140,7 +139,7 @@ class _AboutHeroBanner extends StatelessWidget {
                         SizedBox(
                           width: isDesktop ? 600 : double.infinity,
                           child: Text(
-                            'Over 6 years of trust, expertise, and unwavering commitment to our clients\' success.',
+                            'Building Trust Through Expertise, Integrity, and Exceptional Financial Services for Over 2 Years.',
                             textAlign: isDesktop ? TextAlign.left : TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Metropolis',
@@ -221,7 +220,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SINCE 2004',
+          'SINCE 2024',
           style: TextStyle(
             fontFamily: 'Metropolis',
             color: AppTheme.primaryColor,
@@ -243,7 +242,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
         ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
         const SizedBox(height: 24),
         Text(
-          'Founded in 2004, Taxverse has grown from a single-office practice into a multi-professional firm with a network spanning India and the Middle East.',
+          'Taxverse is a team of professionals, who ease your business through knowledge & expertise. Our consultants have experienced a wide range of challenges and we are capable of dealing with it. We are a business comprised of industry-specific experts who offer professional advice, guidance, and actionable solutions.',
           style: TextStyle(
             fontFamily: 'Metropolis',
             color: AppTheme.textSecondary,
@@ -253,7 +252,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
         ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
         const SizedBox(height: 20),
         Text(
-          'Our journey has been defined by an unwavering commitment to professional excellence, ethical practice, and client-centric service. Over the past 6+ years, we have served 2,000+ clients across diverse industries.',
+          'Today, Taxverse offers comprehensive services in audit, taxation, accounting, registrations, and business consulting.',
           style: TextStyle(
             fontFamily: 'Metropolis',
             color: AppTheme.textSecondary,
@@ -263,7 +262,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
         ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(3)),
         const SizedBox(height: 20),
         Text(
-          'Today, Taxverse stands as a trusted name in chartered accountancy, offering comprehensive services in audit, taxation, accounting, registrations, and business consulting.',
+          'We take pride in delivering our clients the results we promise.',
           style: TextStyle(
             fontFamily: 'Metropolis',
             color: AppTheme.textSecondary,
@@ -290,7 +289,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
             children: [
               Expanded(
                 child: _AnimatedStatItem(
-                  value: 6,
+                  value: 2,
                   suffix: '+',
                   label: 'Years',
                   animate: isVisible,
@@ -300,11 +299,10 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
               ),
               Expanded(
                 child: _AnimatedStatItem(
-                  value: 2000,
+                  value: 600,
                   suffix: '+',
                   label: 'Clients',
                   animate: isVisible,
-                  useComma: true,
                   delay: 600,
                   valueFontSize: sizingInformation.isMobile ? 28 : 36,
                 ),
@@ -316,7 +314,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
             children: [
               Expanded(
                 child: _AnimatedStatItem(
-                  value: 500,
+                  value: 200,
                   suffix: '+',
                   label: 'Registrations',
                   animate: isVisible,
@@ -326,7 +324,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
               ),
               Expanded(
                 child: _AnimatedStatItem(
-                  value: 50,
+                  value: 15,
                   suffix: '+',
                   label: 'Professionals',
                   animate: isVisible,
@@ -348,7 +346,6 @@ class _AnimatedStatItem extends StatefulWidget {
   final String suffix;
   final String label;
   final bool animate;
-  final bool useComma;
   final int delay;
   final double valueFontSize;
 
@@ -357,7 +354,6 @@ class _AnimatedStatItem extends StatefulWidget {
     required this.suffix,
     required this.label,
     required this.animate,
-    this.useComma = false,
     this.delay = 0,
     this.valueFontSize = 36,
   });
@@ -402,17 +398,6 @@ class _AnimatedStatItemState extends State<_AnimatedStatItem>
     super.dispose();
   }
 
-  String _formatNumber(int value) {
-    if (!widget.useComma) return '$value';
-    final str = value.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) buffer.write(',');
-      buffer.write(str[i]);
-    }
-    return buffer.toString();
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -422,7 +407,7 @@ class _AnimatedStatItemState extends State<_AnimatedStatItem>
         return Column(
           children: [
             Text(
-              '${_formatNumber(currentValue)}${widget.suffix}',
+              '$currentValue${widget.suffix}',
               style: TextStyle(
                 fontFamily: 'Metropolis',
                 color: AppTheme.primaryColor,
@@ -442,158 +427,6 @@ class _AnimatedStatItemState extends State<_AnimatedStatItem>
           ],
         );
       },
-    );
-  }
-}
-
-// ─── MEET OUR FOUNDER SECTION ──────────────────────────────────────────────────
-class _MeetFounderSection extends StatefulWidget {
-  const _MeetFounderSection();
-
-  @override
-  State<_MeetFounderSection> createState() => _MeetFounderSectionState();
-}
-
-class _MeetFounderSectionState extends State<_MeetFounderSection> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: const Color(0xFFF1F5F9),
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 800),
-          child: ScrollVisibilityDetector(
-            detectorKey: const Key('meet-founder-section'),
-            builder: (context, isVisible, child) {
-              return Column(
-                children: [
-                  Text(
-                    'LEADERSHIP',
-                    style: TextStyle(
-                      fontFamily: 'Metropolis',
-                      color: AppTheme.primaryColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 2.0,
-                    ),
-                  ).riseFade(isVisible: isVisible),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Meet Our Founder',
-                    style: TextStyle(
-                      fontFamily: 'Metropolis',
-                      color: AppTheme.primaryColor,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
-                  const SizedBox(height: 40),
-                  ResponsiveBuilder(
-                    builder: (context, sizingInformation) {
-                      return Container(
-                        padding: EdgeInsets.all(
-                            sizingInformation.isMobile ? 20 : 32),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: !sizingInformation.isMobile
-                            ? Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildAvatar(),
-                                  const SizedBox(width: 32),
-                                  Expanded(child: _buildFounderInfo()),
-                                ],
-                              )
-                            : Column(
-                                children: [
-                                  _buildAvatar(),
-                                  const SizedBox(height: 24),
-                                  _buildFounderInfo(),
-                                ],
-                              ),
-                      );
-                    },
-                  ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAvatar() {
-    return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8ECF0),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        Icons.school_outlined,
-        size: 48,
-        color: AppTheme.textSecondary.withValues(alpha: 0.5),
-      ),
-    );
-  }
-
-  Widget _buildFounderInfo() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Riju Chandrasekhar',
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            color: AppTheme.primaryColor,
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Founder & Managing Partner',
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            color: AppTheme.primaryColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          'FCA, LLB, DISA, B.Com',
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            color: AppTheme.textSecondary,
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'With over 25 years of distinguished experience in chartered accountancy and law, Riju Chandrasekhar founded Taxverse with a vision to deliver world-class financial services rooted in integrity and innovation. Under his leadership, the firm has grown into a multi-professional practice serving clients across India and the Middle East.',
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            color: AppTheme.textSecondary,
-            fontSize: 15,
-            height: 1.7,
-          ),
-        ),
-      ],
     );
   }
 }

@@ -21,7 +21,7 @@ class _CareersPageState extends State<CareersPage> {
   void _handleNavigate(String section) {
     switch (section) {
       case 'HOME':
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
         break;
       case 'ABOUT US':
         Navigator.pushReplacementNamed(context, '/about');

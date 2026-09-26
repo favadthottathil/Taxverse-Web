@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/constants.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../widgets/header_nav.dart';
+import '../widgets/scroll_visibility_detector.dart';
 import 'sections/footer_section.dart';
 
 class ServicesPage extends StatefulWidget {
@@ -14,163 +15,238 @@ class ServicesPage extends StatefulWidget {
 }
 
 class _ServicesPageState extends State<ServicesPage> {
+  static const String _allServices = 'All Services';
+
   final ScrollController _scrollController = ScrollController();
 
-  String _selectedCategory = 'All Services';
+  String _selectedCategory = _allServices;
+  bool _routeArgsApplied = false;
 
-  final List<String> _categories = [
+  // Rows are derived from (category, column count); cache so a rebuild for any
+  // other reason (hover, resize within a breakpoint) doesn't recompute them.
+  String? _entriesCategory;
+  int _entriesColumns = 0;
+  List<_ListEntry> _entries = const [];
+
+  static const List<String> _categories = [
     'All Services',
     'Audit & Assurance',
     'Taxation',
     'Accounting & Payroll',
     'Registrations',
     'Consulting & Advisory',
-    'IP & Others'
+    'IP & Others',
   ];
 
-  final Map<String, _CategoryData> _categoryData = {
+  static const Map<String, _CategoryData> _categoryData = {
     'Audit & Assurance': _CategoryData(
       icon: Icons.shield_outlined,
       services: [
-        _ServiceItem('Statutory Audit',
-            'Comprehensive statutory audit services ensuring compliance with applicable laws and regulations.'),
-        _ServiceItem('Internal Audit',
-            'Systematic evaluation of internal controls and risk management processes.'),
-        _ServiceItem('Tax Audit',
-            'Expert tax audit services under Section 44AB of the Income Tax Act.'),
-        _ServiceItem('Stock Audit',
-            'Thorough verification of inventory and stock records for financial accuracy.'),
-        _ServiceItem('Concurrent Audit',
-            'Real-time audit of banking transactions to ensure ongoing compliance.'),
-        _ServiceItem('Bank Audit',
-            'Specialized audit services for banking and financial institutions.'),
-        _ServiceItem('Revenue Audit',
-            'Assessment of revenue recognition practices and controls.'),
-        _ServiceItem('Management Audit',
-            'Evaluation of management effectiveness and organizational performance.'),
-        _ServiceItem('Due Diligence',
-            'Comprehensive due diligence reviews for mergers, acquisitions, and investments.'),
+        _ServiceItem(
+          'Statutory Audit',
+          'Comprehensive statutory audit services ensuring compliance with applicable laws and regulations.',
+        ),
+        _ServiceItem(
+          'Internal Audit',
+          'Systematic evaluation of internal controls and risk management processes.',
+        ),
+        _ServiceItem(
+          'Tax Audit',
+          'Expert tax audit services under Section 44AB of the Income Tax Act.',
+        ),
+        _ServiceItem(
+          'Stock Audit',
+          'Thorough verification of inventory and stock records for financial accuracy.',
+        ),
+        _ServiceItem(
+          'Management Audit',
+          'Evaluation of management effectiveness and organizational performance.',
+        ),
       ],
     ),
     'Taxation': _CategoryData(
       icon: Icons.description_outlined,
       services: [
-        _ServiceItem('Income Tax Returns (Individuals)',
-            'Professional ITR filing services for salaried and non-salaried individuals.'),
-        _ServiceItem('Income Tax Returns (Business)',
-            'Expert business tax return preparation and filing services.'),
-        _ServiceItem('TDS Filing & Compliance',
-            'End-to-end TDS deduction, filing, and compliance management.'),
-        _ServiceItem('GST Returns & Filing',
-            'Complete GST return filing including GSTR-1, GSTR-3B, and annual returns.'),
-        _ServiceItem('GST Audit',
-            'Thorough GST audit services ensuring compliance with GST regulations.'),
-        _ServiceItem('International Taxation',
-            'Cross-border tax planning and compliance for international businesses.'),
-        _ServiceItem('Transfer Pricing',
-            'Transfer pricing documentation, analysis, and compliance services.'),
-        _ServiceItem('Tax Planning & Advisory',
-            'Strategic tax planning to optimize your tax liability legally.'),
-        _ServiceItem('Tax Notices & Litigation',
-            'Expert representation in tax disputes and litigation matters.'),
+        _ServiceItem(
+          'Income Tax Returns (Individuals)',
+          'Professional ITR filing services for salaried and non-salaried individuals.',
+        ),
+        _ServiceItem(
+          'Income Tax Returns (Business)',
+          'Expert business tax return preparation and filing services.',
+        ),
+        _ServiceItem(
+          'TDS Filing & Compliance',
+          'End-to-end TDS deduction, filing, and compliance management.',
+        ),
+        _ServiceItem(
+          'GST Returns & Filing',
+          'Complete GST return filing including GSTR-1, GSTR-3B, and annual returns.',
+        ),
+        _ServiceItem(
+          'GST Audit',
+          'Thorough GST audit services ensuring compliance with GST regulations.',
+        ),
+        _ServiceItem(
+          'Tax Planning & Advisory',
+          'Strategic tax planning to optimize your tax liability legally.',
+        ),
+        _ServiceItem(
+          'Tax Notices & Litigation',
+          'Expert representation in tax disputes and litigation matters.',
+        ),
       ],
     ),
     'Accounting & Payroll': _CategoryData(
       icon: Icons.calculate_outlined,
       services: [
-        _ServiceItem('Bookkeeping Services',
-            'Accurate and timely bookkeeping to keep your financials in order.'),
-        _ServiceItem('Outsourced Accounting',
-            'Complete accounting function outsourcing for growing businesses.'),
-        _ServiceItem('Payroll Processing',
-            'End-to-end payroll management including compliance and reporting.'),
-        _ServiceItem('MIS Reporting',
-            'Custom management information system reports for better decision-making.'),
-        _ServiceItem('Financial Statement Preparation',
-            'Professional preparation of balance sheets, P&L, and cash flow statements.'),
-        _ServiceItem('Virtual CFO Services',
-            'Strategic financial leadership without the cost of a full-time CFO.'),
+        _ServiceItem(
+          'Bookkeeping Services',
+          'Accurate and timely bookkeeping to keep your financials in order.',
+        ),
+        _ServiceItem(
+          'Outsourced Accounting',
+          'Complete accounting function outsourcing for growing businesses.',
+        ),
+        _ServiceItem(
+          'Payroll Processing',
+          'End-to-end payroll management including compliance and reporting.',
+        ),
+        _ServiceItem(
+          'MIS Reporting',
+          'Custom management information system reports for better decision-making.',
+        ),
+        _ServiceItem(
+          'Financial Statement Preparation',
+          'Professional preparation of balance sheets, P&L, and cash flow statements.',
+        ),
       ],
     ),
     'Registrations': _CategoryData(
       icon: Icons.article_outlined,
       services: [
-        _ServiceItem('Company Incorporation (Pvt Ltd)',
-            'End-to-end private limited company registration and compliance setup.'),
-        _ServiceItem('LLP Registration',
-            'Complete Limited Liability Partnership formation and filing services.'),
-        _ServiceItem('One Person Company',
-            'OPC registration for solo entrepreneurs with limited liability protection.'),
-        _ServiceItem('Public Limited Company',
-            'Registration and compliance services for public limited companies.'),
-        _ServiceItem('Partnership Firm',
-            'Partnership deed drafting and firm registration services.'),
-        _ServiceItem('Proprietorship',
-            'Sole proprietorship setup with all required registrations.'),
-        _ServiceItem('GST Registration',
-            'Complete GST registration and compliance setup for businesses.'),
-        _ServiceItem('GST for Foreigners',
-            'Specialized GST registration services for foreign entities operating in India.'),
-        _ServiceItem('TAN Registration',
-            'Tax Account Number registration for TDS deduction compliance.'),
-        _ServiceItem('PF Registration',
-            'Provident Fund registration and compliance for employers.'),
-        _ServiceItem('Professional Tax Registration',
-            'State-level professional tax registration and filing services.'),
-        _ServiceItem('FSSAI Registration',
-            'Food safety license and registration for food businesses.'),
-        _ServiceItem('Import-Export Code',
-            'IEC registration for businesses engaged in international trade.'),
-        _ServiceItem('Trade License',
-            'Municipal trade license acquisition for business operations.'),
-        _ServiceItem('MSME/Udyam Registration',
-            'Udyam registration for micro, small, and medium enterprises.'),
-        _ServiceItem('Startup India Registration',
-            'DPIIT recognition and benefits for eligible startups.'),
-        _ServiceItem('12A & 80G Registration (NGO)',
-            'Tax exemption registration for non-profit organizations.'),
-        _ServiceItem('FCRA Registration',
-            'Foreign Contribution Regulation Act registration for NGOs.'),
+        _ServiceItem(
+          'Company Incorporation (Pvt Ltd)',
+          'End-to-end private limited company registration and compliance setup.',
+        ),
+        _ServiceItem(
+          'LLP Registration',
+          'Complete Limited Liability Partnership formation and filing services.',
+        ),
+        _ServiceItem(
+          'One Person Company',
+          'OPC registration for solo entrepreneurs with limited liability protection.',
+        ),
+        _ServiceItem(
+          'Public Limited Company',
+          'Registration and compliance services for public limited companies.',
+        ),
+        _ServiceItem(
+          'Partnership Firm',
+          'Partnership deed drafting and firm registration services.',
+        ),
+        _ServiceItem(
+          'Proprietorship',
+          'Sole proprietorship setup with all required registrations.',
+        ),
+        _ServiceItem(
+          'GST Registration',
+          'Complete GST registration and compliance setup for businesses.',
+        ),
+        _ServiceItem(
+          'GST for Foreigners',
+          'Specialized GST registration services for foreign entities operating in India.',
+        ),
+        _ServiceItem(
+          'TAN Registration',
+          'Tax Account Number registration for TDS deduction compliance.',
+        ),
+        _ServiceItem(
+          'PF Registration',
+          'Provident Fund registration and compliance for employers.',
+        ),
+        _ServiceItem(
+          'Professional Tax Registration',
+          'State-level professional tax registration and filing services.',
+        ),
+        _ServiceItem(
+          'FSSAI Registration',
+          'Food safety license and registration for food businesses.',
+        ),
+        _ServiceItem(
+          'Import-Export Code',
+          'IEC registration for businesses engaged in international trade.',
+        ),
+        _ServiceItem(
+          'Trade License',
+          'Municipal trade license acquisition for business operations.',
+        ),
+        _ServiceItem(
+          'MSME/Udyam Registration',
+          'Udyam registration for micro, small, and medium enterprises.',
+        ),
+        _ServiceItem(
+          'Startup India Registration',
+          'DPIIT recognition and benefits for eligible startups.',
+        ),
+        _ServiceItem(
+          '12A & 80G Registration (NGO)',
+          'Tax exemption registration for non-profit organizations.',
+        ),
       ],
     ),
     'Consulting & Advisory': _CategoryData(
       icon: Icons.business_center_outlined,
       services: [
-        _ServiceItem('Business Setup Advisory',
-            'Expert guidance on business structure, jurisdiction, and setup strategy.'),
-        _ServiceItem('Project Financing',
-            'Comprehensive project financing solutions and documentation support.'),
-        _ServiceItem('Bank Loan Assistance',
-            'End-to-end support for bank loan applications and documentation.'),
-        _ServiceItem('Financial Due Diligence',
-            'Thorough financial investigation for informed business decisions.'),
-        _ServiceItem('Business Valuation',
-            'Professional business valuation services for M&A, funding, and compliance.'),
-        _ServiceItem('FEMA & RBI Compliance',
-            'Foreign exchange management and RBI regulatory compliance services.'),
-        _ServiceItem('Company Law Advisory',
-            'Expert advisory on Companies Act compliance and corporate governance.'),
-        _ServiceItem('Mergers & Acquisitions',
-            'End-to-end M&A advisory including structuring, valuation, and execution.'),
+        _ServiceItem(
+          'Business Setup Advisory',
+          'Expert guidance on business structure, jurisdiction, and setup strategy.',
+        ),
+        _ServiceItem(
+          'Project Financing',
+          'Comprehensive project financing solutions and documentation support.',
+        ),
+        _ServiceItem(
+          'Bank Loan Assistance',
+          'End-to-end support for bank loan applications and documentation.',
+        ),
+        _ServiceItem(
+          'Virtual CFO Services',
+          'Strategic financial leadership without the cost of a full-time CFO.',
+        ),
+        _ServiceItem(
+          'Business Valuation',
+          'Professional business valuation services for M&A, funding, and compliance.',
+        ),
+        _ServiceItem(
+          'Company Law Advisory',
+          'Expert advisory on Companies Act compliance and corporate governance.',
+        ),
       ],
     ),
     'IP & Others': _CategoryData(
       icon: Icons.verified_outlined,
       services: [
-        _ServiceItem('Trademark Registration',
-            'Complete trademark search, filing, and registration services.'),
-        _ServiceItem('Copyright Registration',
-            'Protection of original creative works through copyright registration.'),
-        _ServiceItem('Patent Filing',
-            'Patent application drafting, filing, and prosecution services.'),
-        _ServiceItem('ISO Certification',
-            'ISO quality management system certification assistance.'),
-        _ServiceItem('ROC Filings & Compliance',
-            'Annual ROC filings and ongoing corporate compliance management.'),
-        _ServiceItem('Labour Law Compliance',
-            'Comprehensive labour law advisory and compliance services.'),
-        _ServiceItem('RERA Advisory',
-            'Real Estate Regulatory Authority compliance and advisory services.'),
+        _ServiceItem(
+          'Trademark Registration',
+          'Complete trademark search, filing, and registration services.',
+        ),
+        _ServiceItem(
+          'Copyright Registration',
+          'Protection of original creative works through copyright registration.',
+        ),
+        _ServiceItem(
+          'Patent Filing',
+          'Patent application drafting, filing, and prosecution services.',
+        ),
+        _ServiceItem(
+          'ISO Certification',
+          'ISO quality management system certification assistance.',
+        ),
+        _ServiceItem(
+          'ROC Filings & Compliance',
+          'Annual ROC filings and ongoing corporate compliance management.',
+        ),
       ],
     ),
   };
@@ -178,41 +254,49 @@ class _ServicesPageState extends State<ServicesPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Apply the route argument once. Depending on the ModalRoute re-fires this
+    // whenever the route's state changes (e.g. a dialog opens on top), which
+    // would otherwise reset the tab the user picked.
+    if (_routeArgsApplied) return;
+    _routeArgsApplied = true;
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is String && _categories.contains(args)) {
       _selectedCategory = args;
     }
   }
 
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 1200),
+      curve: Curves.easeOutQuart,
+    );
+  }
+
+  void _selectCategory(String category) {
+    if (category == _selectedCategory) return;
+    setState(() => _selectedCategory = category);
+  }
+
   void _handleNavigate(String section) {
     if (section.startsWith('SERVICES|')) {
       final category = section.split('|')[1];
       if (_categories.contains(category)) {
-        setState(() {
-          _selectedCategory = category;
-        });
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 1200),
-          curve: Curves.easeOutQuart,
-        );
+        _selectCategory(category);
+        _scrollToTop();
       }
       return;
     }
 
     switch (section) {
       case 'HOME':
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
         break;
       case 'ABOUT US':
         Navigator.pushReplacementNamed(context, '/about');
         break;
       case 'SERVICES':
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 1200),
-          curve: Curves.easeOutQuart,
-        );
+        _scrollToTop();
         break;
       // case 'CAREERS':
       //   Navigator.pushReplacementNamed(context, '/careers');
@@ -224,190 +308,98 @@ class _ServicesPageState extends State<ServicesPage> {
     }
   }
 
+  /// Flattens the selected category (or all of them) into header + card-row
+  /// entries so the list can be built lazily, one row at a time.
+  List<_ListEntry> _entriesFor(String category, int columns) {
+    if (category == _entriesCategory && columns == _entriesColumns) {
+      return _entries;
+    }
+
+    final Iterable<String> names = category == _allServices
+        ? _categoryData.keys
+        : _categoryData.containsKey(category)
+        ? [category]
+        : const [];
+
+    final entries = <_ListEntry>[];
+    for (final name in names) {
+      final data = _categoryData[name]!;
+      entries.add(_HeaderEntry(name, data.icon, isFirst: entries.isEmpty));
+      final services = data.services;
+      for (var i = 0; i < services.length; i += columns) {
+        final end = i + columns < services.length
+            ? i + columns
+            : services.length;
+        entries.add(_RowEntry(name, i, services.sublist(i, end)));
+      }
+    }
+
+    _entriesCategory = category;
+    _entriesColumns = columns;
+    return _entries = entries;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          HeaderNav(
-            onNavigate: _handleNavigate,
-            activeRoute: 'SERVICES',
-          ),
+          HeaderNav(onNavigate: _handleNavigate, activeRoute: 'SERVICES'),
           Expanded(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                children: [
-                  const _ServicesHeroBanner(),
-                  _buildContentArea(),
-                  FooterSection(onNavigate: _handleNavigate),
-                ],
-              ),
+            child: ResponsiveBuilder(
+              builder: (context, sizingInfo) {
+                final columns = sizingInfo.isDesktop
+                    ? 3
+                    : sizingInfo.isTablet
+                    ? 2
+                    : 1;
+                final entries = _entriesFor(_selectedCategory, columns);
+
+                return CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    const SliverToBoxAdapter(child: _ServicesHeroBanner()),
+                    SliverToBoxAdapter(
+                      child: _ContentFrame(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 48),
+                          child: _CategoryTabs(
+                            categories: _categories,
+                            selected: _selectedCategory,
+                            onSelected: _selectCategory,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Keyed so switching category or column count starts a
+                    // fresh list (and fresh entrance animations).
+                    SliverList.builder(
+                      key: ValueKey('$_selectedCategory-$columns'),
+                      itemCount: entries.length,
+                      itemBuilder: (context, index) => _KeepAlive(
+                        child: _ContentFrame(
+                          child: switch (entries[index]) {
+                            _HeaderEntry entry => _CategoryHeader(entry: entry),
+                            _RowEntry entry => _ServiceRow(
+                              entry: entry,
+                              columns: columns,
+                            ),
+                          },
+                        ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 48)),
+                    SliverToBoxAdapter(
+                      child: FooterSection(onNavigate: _handleNavigate),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildContentArea() {
-    return Container(
-      width: double.infinity,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
-      child: Center(
-        child: ConstrainedBox(
-          constraints:
-              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildCategoryTabs(),
-              const SizedBox(height: 48),
-              _buildServicesList(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryTabs() {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: _categories.map((category) {
-        final isSelected = _selectedCategory == category;
-        return InkWell(
-          onTap: () {
-            setState(() {
-              _selectedCategory = category;
-            });
-          },
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color:
-                  isSelected ? AppTheme.primaryColor : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Text(
-              category,
-              style: TextStyle(
-                fontFamily: 'Metropolis',
-                color: isSelected ? Colors.white : const Color(0xFF64748B),
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    ).animate().fade(duration: 1600.ms).slideY(begin: 0.1, end: 0, duration: 1600.ms, curve: Curves.easeOutCubic);
-  }
-
-  Widget _buildServicesList() {
-    List<Widget> sections = [];
-
-    if (_selectedCategory == 'All Services') {
-      _categoryData.forEach((categoryName, data) {
-        sections.add(_buildCategorySection(categoryName, data));
-        sections.add(const SizedBox(height: 48));
-      });
-    } else if (_categoryData.containsKey(_selectedCategory)) {
-      sections.add(_buildCategorySection(
-          _selectedCategory, _categoryData[_selectedCategory]!));
-    } else {
-      sections.add(
-        Padding(
-          padding: const EdgeInsets.all(48.0),
-          child: Center(
-            child: Text(
-              'No services specifically defined for $_selectedCategory in this preview.',
-              style: TextStyle(
-                  fontFamily: 'Metropolis', color: Colors.grey, fontSize: 16),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: sections,
-    );
-  }
-
-  Widget _buildCategorySection(String name, _CategoryData data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(data.icon, color: AppTheme.accentColor, size: 28),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                name,
-                style: TextStyle(
-                  fontFamily: 'Metropolis',
-                  color: AppTheme.primaryColor,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ).animate().fade(duration: 1600.ms).slideX(begin: -0.1, end: 0, duration: 1600.ms, curve: Curves.easeOutCubic),
-        const SizedBox(height: 24),
-        ResponsiveBuilder(
-          builder: (context, sizingInfo) {
-            int crossAxisCount = 1;
-            if (sizingInfo.isDesktop) {
-              crossAxisCount = 3;
-            } else if (sizingInfo.isTablet) {
-              crossAxisCount = 2;
-            }
-
-            List<Widget> rows = [];
-            for (var i = 0; i < data.services.length; i += crossAxisCount) {
-              int end = (i + crossAxisCount < data.services.length)
-                  ? i + crossAxisCount
-                  : data.services.length;
-              List<_ServiceItem> rowItems = data.services.sublist(i, end);
-
-              rows.add(
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: rowItems.map((item) {
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _ServiceCard(item: item),
-                      ),
-                    );
-                  }).toList()
-                    // Fill remaining space if row is not full on desktop/tablet
-                    ..addAll(
-                      List.generate(
-                        crossAxisCount - rowItems.length,
-                        (_) => Expanded(
-                            child:
-                                Container(margin: const EdgeInsets.all(8.0))),
-                      ),
-                    ),
-                ),
-              );
-            }
-
-            return Column(
-              children: rows.map((row) => IntrinsicHeight(child: row)).toList(),
-            );
-          },
-        ),
-      ],
     );
   }
 
@@ -418,16 +410,220 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 }
 
+sealed class _ListEntry {
+  const _ListEntry();
+}
+
+class _HeaderEntry extends _ListEntry {
+  final String name;
+  final IconData icon;
+  final bool isFirst;
+
+  const _HeaderEntry(this.name, this.icon, {required this.isFirst});
+}
+
+class _RowEntry extends _ListEntry {
+  final String category;
+
+  /// Index of the row's first service within [category]; keeps detector keys
+  /// unique across rows.
+  final int startIndex;
+  final List<_ServiceItem> items;
+
+  const _RowEntry(this.category, this.startIndex, this.items);
+}
+
 class _CategoryData {
   final IconData icon;
   final List<_ServiceItem> services;
-  _CategoryData({required this.icon, required this.services});
+  const _CategoryData({required this.icon, required this.services});
 }
 
 class _ServiceItem {
   final String title;
   final String description;
-  _ServiceItem(this.title, this.description);
+  const _ServiceItem(this.title, this.description);
+}
+
+/// Centers content in the shared max-width column with the page gutter.
+class _ContentFrame extends StatelessWidget {
+  final Widget child;
+
+  const _ContentFrame({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: AppConstants.desktopMaxWidth,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// Keeps a lazily built row alive once created, so scrolling back to it never
+/// replays its entrance animation.
+class _KeepAlive extends StatefulWidget {
+  final Widget child;
+
+  const _KeepAlive({required this.child});
+
+  @override
+  State<_KeepAlive> createState() => _KeepAliveState();
+}
+
+class _KeepAliveState extends State<_KeepAlive>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
+  }
+}
+
+class _CategoryTabs extends StatelessWidget {
+  final List<String> categories;
+  final String selected;
+  final ValueChanged<String> onSelected;
+
+  const _CategoryTabs({
+    required this.categories,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollVisibilityDetector(
+      detectorKey: const Key('services-tabs-detector'),
+      animateOnce: true,
+      builder: (context, isVisible, child) =>
+          child.riseFade(isVisible: isVisible),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            for (final category in categories)
+              _buildTab(category, category == selected),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTab(String category, bool isSelected) {
+    return Semantics(
+      selected: isSelected,
+      button: true,
+      child: InkWell(
+        onTap: () => onSelected(category),
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.primaryColor : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Text(
+            category,
+            style: TextStyle(
+              fontFamily: 'Metropolis',
+              color: isSelected ? Colors.white : const Color(0xFF475569),
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryHeader extends StatelessWidget {
+  final _HeaderEntry entry;
+
+  const _CategoryHeader({required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: entry.isFirst ? 0 : 40, bottom: 16),
+      child: ScrollVisibilityDetector(
+        detectorKey: Key('services-header-${entry.name}'),
+        animateOnce: true,
+        builder: (context, isVisible, child) =>
+            child.riseFade(isVisible: isVisible),
+        child: Row(
+          children: [
+            Icon(entry.icon, color: AppTheme.primaryColor, size: 28),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                entry.name,
+                style: TextStyle(
+                  fontFamily: 'Metropolis',
+                  color: AppTheme.primaryColor,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ServiceRow extends StatelessWidget {
+  final _RowEntry entry;
+  final int columns;
+
+  const _ServiceRow({required this.entry, required this.columns});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = entry.items;
+    // IntrinsicHeight equalises card heights within a row; it's cheap here
+    // because only the handful of rows near the viewport are ever built.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var column = 0; column < columns; column++)
+            Expanded(
+              child: column < items.length
+                  ? Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: ScrollVisibilityDetector(
+                        detectorKey: Key(
+                          'service-${entry.category}-${entry.startIndex + column}',
+                        ),
+                        animateOnce: true,
+                        builder: (context, isVisible, child) => child.riseFade(
+                          isVisible: isVisible,
+                          delay: AppMotion.stagger(column),
+                        ),
+                        child: _ServiceCard(item: items[column]),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ServiceCard extends StatefulWidget {
@@ -440,13 +636,21 @@ class _ServiceCard extends StatefulWidget {
 }
 
 class _ServiceCardState extends State<_ServiceCard> {
+  static const _hoveredShadow = [
+    BoxShadow(color: Color(0x0D000000), blurRadius: 10, offset: Offset(0, 4)),
+  ];
+
   bool _isHovered = false;
+
+  void _setHovered(bool value) {
+    if (_isHovered != value) setState(() => _isHovered = value);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+      onEnter: (_) => _setHovered(true),
+      onExit: (_) => _setHovered(false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(24),
@@ -456,14 +660,7 @@ class _ServiceCardState extends State<_ServiceCard> {
           border: Border.all(
             color: _isHovered ? AppTheme.primaryColor : AppTheme.secondaryColor,
           ),
-          boxShadow: [
-            if (_isHovered)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-          ],
+          boxShadow: _isHovered ? _hoveredShadow : const [],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,32 +686,9 @@ class _ServiceCardState extends State<_ServiceCard> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Text(
-                  'Get Started',
-                  style: TextStyle(
-                    fontFamily: 'Metropolis',
-                    color: _isHovered ? Colors.white : AppTheme.primaryColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.chevron_right,
-                  color: _isHovered ? Colors.white : AppTheme.primaryColor,
-                  size: 16,
-                ),
-              ],
-            ),
           ],
         ),
-      )
-          .animate()
-          .fade(duration: 1600.ms)
-          .slideY(begin: 0.05, end: 0, duration: 1600.ms, curve: Curves.easeOutCubic),
+      ),
     );
   }
 }
@@ -535,62 +709,73 @@ class _ServicesHeroBanner extends StatelessWidget {
           return Align(
             alignment: isDesktop ? Alignment.centerLeft : Alignment.topCenter,
             child: ConstrainedBox(
-              constraints:
-                  const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+              constraints: const BoxConstraints(
+                maxWidth: AppConstants.desktopMaxWidth,
+              ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: isDesktop
-                      ? CrossAxisAlignment.start
-                      : CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'SERVICES',
-                      textAlign: isDesktop ? TextAlign.left : TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        color: AppTheme.accentColor,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2.0,
-                      ),
-                    )
-                        .animate()
-                        .fade(duration: 1600.ms)
-                        .slideY(begin: 0.2, end: 0, duration: 1600.ms),
-                    const SizedBox(height: 12),
-                    Text(
-                      'What We Offer',
-                      textAlign: isDesktop ? TextAlign.left : TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        color: Colors.white,
-                        fontSize: isDesktop ? 42 : 30,
-                        fontWeight: FontWeight.w800,
-                        height: 1.15,
-                      ),
-                    )
-                        .animate()
-                        .fade(delay: 100.ms, duration: 1600.ms)
-                        .slideY(begin: 0.2, end: 0, duration: 1600.ms),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: isDesktop ? 600 : double.infinity,
-                      child: Text(
-                        'Comprehensive financial, legal, and business services tailored to your needs.',
-                        textAlign: isDesktop ? TextAlign.left : TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: isDesktop ? 16 : 15,
-                          height: 1.6,
+                child: ScrollVisibilityDetector(
+                  detectorKey: const Key('services-hero-detector'),
+                  animateOnce: true,
+                  builder: (context, isVisible, child) {
+                    return Column(
+                      crossAxisAlignment: isDesktop
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'SERVICES',
+                          textAlign: isDesktop
+                              ? TextAlign.left
+                              : TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            color: AppTheme.accentColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 2.0,
+                          ),
+                        ).riseFade(isVisible: isVisible),
+                        const SizedBox(height: 12),
+                        Text(
+                          'What We Offer',
+                          textAlign: isDesktop
+                              ? TextAlign.left
+                              : TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            color: Colors.white,
+                            fontSize: isDesktop ? 42 : 30,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
+                          ),
+                        ).riseFade(
+                          isVisible: isVisible,
+                          delay: AppMotion.stagger(1),
                         ),
-                      )
-                          .animate()
-                          .fade(delay: 200.ms, duration: 1600.ms)
-                          .slideY(begin: 0.2, end: 0, duration: 1600.ms),
-                    ),
-                  ],
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: isDesktop ? 600 : double.infinity,
+                          child:
+                              Text(
+                                'Comprehensive financial, legal, and business services tailored to your needs.',
+                                textAlign: isDesktop
+                                    ? TextAlign.left
+                                    : TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Metropolis',
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: isDesktop ? 16 : 15,
+                                  height: 1.6,
+                                ),
+                              ).riseFade(
+                                isVisible: isVisible,
+                                delay: AppMotion.stagger(2),
+                              ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
