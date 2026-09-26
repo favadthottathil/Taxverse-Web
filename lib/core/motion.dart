@@ -11,6 +11,12 @@ class AppMotion {
   /// Snappy, professional entrance animation duration.
   static const Duration duration = Duration(milliseconds: 700);
 
+  /// Full-page route transition. Much shorter than [duration]: the whole page
+  /// is composited through a fade layer while it runs, so a long transition
+  /// keeps that expensive layer alive (and the new page's first frames
+  /// competing with it) for longer.
+  static const Duration pageDuration = Duration(milliseconds: 280);
+
   /// Vertical travel as a fraction of the widget height — small so it reads as
   /// a subtle rise rather than a jump.
   static const double rise = 0.08;
@@ -27,6 +33,15 @@ class AppMotion {
 
   /// Delay between staggered siblings (cards, steps, features).
   static Duration stagger(int index) => Duration(milliseconds: 120 * index);
+
+  /// True when entrance motion should be skipped: the user asked the OS/browser
+  /// to reduce motion (`prefers-reduced-motion`), or assistive technology is
+  /// active. In the latter case content that is faded to zero opacity is also
+  /// dropped from the semantics tree, so it must be shown up front or screen
+  /// readers would never reach anything below the fold.
+  static bool reduced(BuildContext context) =>
+      MediaQuery.disableAnimationsOf(context) ||
+      MediaQuery.accessibleNavigationOf(context);
 }
 
 /// Builds the shared page-transition route used for every named-route
@@ -39,11 +54,12 @@ PageRouteBuilder<T> buildPageRoute<T>(
 ) {
   return PageRouteBuilder<T>(
     settings: settings,
-    transitionDuration: AppMotion.duration,
-    reverseTransitionDuration: AppMotion.duration,
+    transitionDuration: AppMotion.pageDuration,
+    reverseTransitionDuration: AppMotion.pageDuration,
     pageBuilder: (context, animation, secondaryAnimation) =>
         builder(context),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      if (MediaQuery.disableAnimationsOf(context)) return child;
       final curved = CurvedAnimation(parent: animation, curve: AppMotion.curve);
       return FadeTransition(
         opacity: curved,
@@ -63,15 +79,26 @@ extension EntranceAnimation on Widget {
   /// Plays the shared fade + gentle-rise entrance when [isVisible] flips true
   /// and reverses it when [isVisible] flips false. Use [delay] to stagger
   /// siblings (see [AppMotion.stagger]).
+  ///
+  /// Skipped entirely (content is simply shown) when [AppMotion.reduced].
   Widget riseFade({required bool isVisible, Duration delay = Duration.zero}) {
-    return animate(target: isVisible ? 1 : 0)
-        .fade(delay: delay, duration: AppMotion.duration, curve: AppMotion.curve)
-        .slideY(
-          begin: AppMotion.rise,
-          end: 0,
-          delay: delay,
-          duration: AppMotion.duration,
-          curve: AppMotion.curve,
-        );
+    return Builder(
+      builder: (context) {
+        if (AppMotion.reduced(context)) return this;
+        return animate(target: isVisible ? 1 : 0)
+            .fade(
+              delay: delay,
+              duration: AppMotion.duration,
+              curve: AppMotion.curve,
+            )
+            .slideY(
+              begin: AppMotion.rise,
+              end: 0,
+              delay: delay,
+              duration: AppMotion.duration,
+              curve: AppMotion.curve,
+            );
+      },
+    );
   }
 }

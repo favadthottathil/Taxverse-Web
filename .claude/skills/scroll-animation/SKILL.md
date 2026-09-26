@@ -15,7 +15,7 @@ for visual consistency — don't invent new animation styles or durations.
   (duration, curve, rise distance, reveal offset, stagger helper) and the
   `riseFade()` extension on `Widget`.
 - [lib/presentation/widgets/scroll_visibility_detector.dart](../../../lib/presentation/widgets/scroll_visibility_detector.dart)
-  — `ScrollVisibilityDetector` widget that wraps `VisibilityDetector` and
+  — `ScrollVisibilityDetector` widget, driven by the enclosing `Scrollable`'s position (one shared listener per scroll position, no `VisibilityDetector`), and
   exposes `isVisible` once the element crosses the reveal line.
 
 ## Pattern
@@ -60,9 +60,8 @@ use whichever stagger increment matches the density of nearby usages.
 
 - **`detectorKey` must be unique per instance**, especially for widgets that
   can be mounted on multiple routes simultaneously (e.g. a footer present on
-  every page during route transitions). `ScrollVisibilityDetector` already
-  generates its own internal `UniqueKey` for the `VisibilityDetector`
-  registry, but give your own `detectorKey` a descriptive, unique name anyway
+  every page during route transitions). It doubles as the widget's Flutter key,
+  so give it a descriptive, unique name anyway
   (e.g. `'industries-header-detector'`, `'industry-item-$index'`).
 - **Don't change `AppMotion.duration`, `AppMotion.curve`, or `AppMotion.rise`**
   per-section — they're shared tokens so all sections feel cohesive. If a

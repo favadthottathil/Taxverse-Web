@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:taxverse_portfolio/presentation/widgets/scroll_visibility_detector.dart';
 
 void main() {
-  setUp(() {
-    VisibilityDetectorController.instance.updateInterval = Duration.zero;
-  });
-
   testWidgets('ScrollVisibilityDetector does not trigger animations off-screen', (WidgetTester tester) async {
     final List<String> logs = [];
 
@@ -44,7 +39,7 @@ void main() {
 
     // Initial frame
     await tester.pump();
-    // Allow the 200ms timer in ScrollVisibilityDetector to fire
+    // Allow the post-frame reveal check to run
     await tester.pump(const Duration(milliseconds: 250));
 
     // Clear logs to only check states after stabilization
@@ -83,7 +78,7 @@ void main() {
 
     // Initial frame
     await tester.pump();
-    // Allow the 200ms timer in ScrollVisibilityDetector to fire
+    // Allow the post-frame reveal check to run
     await tester.pump(const Duration(milliseconds: 250));
     await tester.pump(); // trigger build
 
@@ -111,6 +106,88 @@ void main() {
     final FadeTransition fadeTransition = tester.widget(fadeTransitionFinder);
     expect(fadeTransition.opacity.value, 1.0); // should be fully visible since it triggered and animated
   });
-}
 
-// Add a getter/extension or field for testing in scroll_visibility_detector.dart if needed, or we can check the logs/UI.
+  group('scroll-driven reveal', () {
+    const targetKey = Key('target');
+
+    Future<ScrollController> pumpList(
+      WidgetTester tester, {
+      required bool animateOnce,
+    }) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              controller: controller,
+              child: Column(
+                children: [
+                  const SizedBox(height: 2000),
+                  ScrollVisibilityDetector(
+                    detectorKey: targetKey,
+                    animateOnce: animateOnce,
+                    child: const SizedBox(height: 100),
+                  ),
+                  const SizedBox(height: 2000),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      return controller;
+    }
+
+    bool isVisible(WidgetTester tester) => tester
+        .state<ScrollVisibilityDetectorState>(find.byKey(targetKey))
+        .isVisibleForTesting;
+
+    testWidgets('reveals when scrolled past the reveal line', (tester) async {
+      final controller = await pumpList(tester, animateOnce: false);
+      expect(isVisible(tester), isFalse);
+
+      controller.jumpTo(1800);
+      await tester.pump(); // layout for the new offset
+      await tester.pump(); // post-frame pass + rebuild
+      expect(isVisible(tester), isTrue);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('replays after leaving the viewport by default', (tester) async {
+      final controller = await pumpList(tester, animateOnce: false);
+
+      controller.jumpTo(1800);
+      await tester.pump();
+      await tester.pump();
+      expect(isVisible(tester), isTrue);
+
+      controller.jumpTo(0);
+      await tester.pump();
+      await tester.pump();
+      expect(isVisible(tester), isFalse);
+
+      controller.jumpTo(1800);
+      await tester.pump();
+      await tester.pump();
+      expect(isVisible(tester), isTrue);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('animateOnce stays revealed after leaving', (tester) async {
+      final controller = await pumpList(tester, animateOnce: true);
+
+      controller.jumpTo(1800);
+      await tester.pump();
+      await tester.pump();
+      expect(isVisible(tester), isTrue);
+
+      controller.jumpTo(0);
+      await tester.pump();
+      await tester.pump();
+      expect(isVisible(tester), isTrue);
+      await tester.pumpAndSettle();
+    });
+  });
+}
