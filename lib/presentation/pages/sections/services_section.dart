@@ -96,34 +96,34 @@ class ServicesSection extends StatelessWidget {
                 ResponsiveBuilder(
                   builder: (context, sizingInformation) {
                     if (sizingInformation.isMobile) {
-                      // Mobile: 2-column grid of compact tiles.
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 0.72,
-                            ),
-                        itemCount: services.length,
-                        itemBuilder: (context, index) {
-                          final delay = (200 + (index * 100)).ms;
-                          return ScrollVisibilityDetector(
-                            detectorKey: Key('services-card-mobile-$index'),
-                            builder: (context, isVisible, child) {
-                              return child.riseFade(
-                                isVisible: isVisible,
-                                delay: delay,
-                              );
-                            },
-                            child: _ServiceCard(
-                              service: services[index],
-                              compact: true,
+                      // Mobile: 2-column grid of compact tiles. Rows size to
+                      // their content (a fixed aspect ratio clipped/overflowed
+                      // the title and description on narrow phones).
+                      final rowCount = (services.length + 1) ~/ 2;
+                      return Column(
+                        children: List.generate(rowCount, (row) {
+                          return Padding(
+                            padding: EdgeInsets.only(top: row == 0 ? 0 : 16),
+                            child: IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  for (var col = 0; col < 2; col++) ...[
+                                    if (col == 1) const SizedBox(width: 16),
+                                    Expanded(
+                                      child: row * 2 + col < services.length
+                                          ? _buildMobileCard(
+                                              services[row * 2 + col],
+                                              row * 2 + col,
+                                            )
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
                           );
-                        },
+                        }),
                       );
                     }
 
@@ -191,6 +191,17 @@ class ServicesSection extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMobileCard(ServiceEntity service, int index) {
+    final delay = (200 + (index * 100)).ms;
+    return ScrollVisibilityDetector(
+      detectorKey: Key('services-card-mobile-$index'),
+      builder: (context, isVisible, child) {
+        return child.riseFade(isVisible: isVisible, delay: delay);
+      },
+      child: _ServiceCard(service: service, compact: true),
     );
   }
 }

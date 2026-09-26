@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,7 +16,8 @@ class ConsultationDialog extends StatefulWidget {
   State<ConsultationDialog> createState() => _ConsultationDialogState();
 }
 
-class _ConsultationDialogState extends State<ConsultationDialog> {
+class _ConsultationDialogState extends State<ConsultationDialog>
+    with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -41,8 +44,44 @@ class _ConsultationDialogState extends State<ConsultationDialog> {
     'Other',
   ];
 
+  // The dialog's own padding animates over 100ms when the keyboard opens, so
+  // the focused field is re-revealed only after the viewport has settled.
+  static const _keyboardSettleDelay = Duration(milliseconds: 150);
+  Timer? _revealTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// The soft keyboard opens *after* a field is focused, so the framework's
+  /// focus-time scroll-into-view runs against the still-full-height viewport
+  /// and the field ends up hidden behind the keyboard. Re-reveal it once the
+  /// insets change.
+  @override
+  void didChangeMetrics() {
+    _revealTimer?.cancel();
+    _revealTimer = Timer(_keyboardSettleDelay, _revealFocusedField);
+  }
+
+  void _revealFocusedField() {
+    if (!mounted) return;
+    final focusedContext = FocusManager.instance.primaryFocus?.context;
+    if (focusedContext == null || !focusedContext.mounted) return;
+    Scrollable.ensureVisible(
+      focusedContext,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      alignment: 0.3,
+      alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+    );
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _revealTimer?.cancel();
     _nameController.dispose();
     _phoneController.dispose();
     _timeController.dispose();
