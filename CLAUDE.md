@@ -21,23 +21,25 @@ The codebase follows a layered (clean architecture-inspired) structure under `li
 
 - `lib/domain/` — abstract definitions, framework-agnostic
   - `entities/` — plain data classes (e.g. `ServiceEntity`, `TestimonialEntity`, `StatEntity`)
-  - `repositories/` — abstract repository interfaces (`ContentRepository`, `ThemeRepository`)
+  - `repositories/` — abstract repository interfaces (`ContentRepository`)
 - `lib/data/` — implementations of the domain layer
   - `datasources/static_content_data_source.dart` — hardcoded/static content for the site (no backend/API)
   - `models/` — data models corresponding to domain entities
-  - `repositories/` — concrete repository implementations (`ContentRepositoryImpl`, `ThemeRepositoryImpl`) that wrap the data source
+  - `repositories/` — concrete repository implementations (`ContentRepositoryImpl`) that wrap the data source. Repositories/data source are constructed manually in `main()` and injected into providers (no DI container)
 - `lib/presentation/` — UI layer
-  - `providers/` — `ChangeNotifier`-based state (`ContentProvider`, `ThemeProvider`), wired up via `provider` package `MultiProvider` in `main.dart`
+  - `providers/` — `ChangeNotifier`-based state (`ContentProvider`), wired up via `provider` package `MultiProvider` in `main.dart`. The app is light-theme only via `AppTheme.lightTheme`
   - `pages/` — top-level routed pages (`home_page.dart`, `about_us_page.dart`, `services_page.dart`, `contact_page.dart`, `careers_page.dart`)
   - `pages/sections/` — large composable sections rendered within pages (hero, services, about, approach, industries, testimonials, footer)
   - `widgets/` — shared widgets used across pages (`header_nav.dart`, `consultation_dialog.dart`)
 - `lib/core/`
+  - `motion.dart` — `AppMotion` animation tokens, `riseFade()` widget extension, and `buildPageRoute` (see Animations)
+  - `scroll_behavior.dart` — `AppScrollBehavior` applied app-wide in `MaterialApp`
   - `theme.dart` — `AppTheme` defining colors, text theme, button themes (Material 3, font family "Metropolis")
   - `constants.dart` — `AppConstants` (app name, contact info, layout breakpoints)
 
 ### Routing
 
-Routes are defined declaratively in `main.dart` via `MaterialApp.routes` (`/`, `/about`, `/services`, `/contact`; `/careers` currently commented out). `HomePage` is a single scrolling page that uses `GlobalKey`s per section + `ScrollController.ensureVisible` for in-page navigation (smooth-scroll to section) rather than route changes.
+Routes are resolved in `main.dart` via `MaterialApp.onGenerateRoute` (`/about`, `/services`, `/contact`; `/` and any unknown path fall through to `HomePage`; `/careers` is commented out). Every route is built with `buildPageRoute` (in `core/motion.dart`), a custom `PageRouteBuilder` giving the shared fade + rise transition — use it for any new route instead of `MaterialPageRoute`. `HomePage` is a single scrolling page that uses `GlobalKey`s per section + `ScrollController.ensureVisible` for in-page navigation (smooth-scroll to section) rather than route changes.
 
 ### Responsive Design
 
@@ -51,4 +53,14 @@ This is a responsive **web** site (browser viewport widths), not a mobile app �
 
 ### Animations
 
-`flutter_animate` is used for entrance/scroll animations; `visibility_detector` is used to trigger animations when sections scroll into view.
+`flutter_animate` is used for entrance/scroll animations; `ScrollVisibilityDetector` (a shared per-scroll-position listener) triggers animations when sections scroll into view.
+
+All entrance animations go through one pattern: wrap content in `ScrollVisibilityDetector` (`presentation/widgets/`) and call `.riseFade(isVisible: ..., delay: ...)` using the shared `AppMotion` tokens — don't hardcode durations/curves per section. See the project skill `.claude/skills/scroll-animation/SKILL.md` for details and gotchas (unique `detectorKey`s, position-based reveal).
+
+### Platform-specific code
+
+`presentation/pages/map_helper.dart` uses a conditional export (`map_helper_stub.dart` vs `map_helper_web.dart`, selected on `dart.library.js_util`) so web-only map embedding (used by the contact page) doesn't break non-web analysis/tests. Add new web-only interop behind the same stub/web split.
+
+### Static analysis
+
+`analysis_options.yaml` extends `flutter_lints`; `build/`, `android/`, `ios/`, `web/` are excluded from analysis.
