@@ -1,0 +1,29 @@
+/* Splash screen shown while the Flutter engine downloads and boots.
+   Colors match AppTheme so the handoff to the real app has no flash.
+   Kept as an external file (not inline) so the Content-Security-Policy can
+   forbid inline styles. */
+#app-splash {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F8FAFC;
+  z-index: 9999;
+  transition: opacity 0.35s ease-out;
+}
+#app-splash .spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(3, 74, 60, 0.15);
+  border-top-color: #034A3C;
+  animation: app-splash-spin 0.8s linear infinite;
+}
+@keyframes app-splash-spin {
+  to { transform: rotate(360deg); }
+}
+#app-splash.app-splash-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
