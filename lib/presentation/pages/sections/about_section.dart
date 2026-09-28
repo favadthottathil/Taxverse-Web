@@ -38,8 +38,8 @@ class _Feature {
 const _features = <_Feature>[
   _Feature(
     Icons.workspace_premium_outlined,
-    '2+ Years of Expertise',
-    'Over 2 years of delivering financial services across diverse industries.',
+    '5+ Years of Expertise',
+    'Over 5 years of delivering financial services across diverse industries.',
     'assets/images/about-1.jpg',
     'Two colleagues reviewing handwritten notes and figures on paper beside open laptops',
   ),

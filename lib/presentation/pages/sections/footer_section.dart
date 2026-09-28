@@ -172,12 +172,18 @@ class _FooterSectionState extends State<FooterSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Taxverse Business Consultancy',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Taxverse Business Consultancy',
+            maxLines: 1,
+            softWrap: false,
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+            ),
           ),
         ),
         const SizedBox(height: 24),

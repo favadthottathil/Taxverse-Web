@@ -146,10 +146,6 @@ class _ServicesPageState extends State<ServicesPage> {
           'Partnership deed drafting and firm registration services.',
         ),
         _ServiceItem(
-          'Proprietorship',
-          'Sole proprietorship setup with all required registrations.',
-        ),
-        _ServiceItem(
           'GST Registration',
           'Complete GST registration and compliance setup for businesses.',
         ),
@@ -160,14 +156,6 @@ class _ServicesPageState extends State<ServicesPage> {
         _ServiceItem(
           'TAN Registration',
           'Tax Account Number registration for TDS deduction compliance.',
-        ),
-        _ServiceItem(
-          'PF Registration',
-          'Provident Fund registration and compliance for employers.',
-        ),
-        _ServiceItem(
-          'Professional Tax Registration',
-          'State-level professional tax registration and filing services.',
         ),
         _ServiceItem(
           'FSSAI Registration',
@@ -205,10 +193,6 @@ class _ServicesPageState extends State<ServicesPage> {
         _ServiceItem(
           'Project Financing',
           'Comprehensive project financing solutions and documentation support.',
-        ),
-        _ServiceItem(
-          'Bank Loan Assistance',
-          'End-to-end support for bank loan applications and documentation.',
         ),
         _ServiceItem(
           'Virtual CFO Services',

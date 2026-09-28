@@ -54,18 +54,6 @@ class _IndustriesSectionState extends State<IndustriesSection> {
       'color': Color(0xFFC2410C), // orange
       'bgColor': Color(0xFFFFF7ED),
     },
-    {
-      'icon': Icons.volunteer_activism_outlined,
-      'label': 'NGOs',
-      'color': Color(0xFF047857), // green
-      'bgColor': Color(0xFFECFDF5),
-    },
-    {
-      'icon': Icons.account_balance_outlined,
-      'label': 'Government',
-      'color': Color(0xFF475569), // slate/dark
-      'bgColor': Color(0xFFF1F5F9),
-    },
   ];
 
   @override

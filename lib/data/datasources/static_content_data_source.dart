@@ -75,7 +75,7 @@ class StaticContentDataSource {
   Future<List<StatModel>> getCompanyStats() async {
     return const [
       StatModel(title: '600+', subtitle: 'Clients'),
-      StatModel(title: '2+', subtitle: 'Years Experience'),
+      StatModel(title: '5+', subtitle: 'Years Experience'),
       StatModel(title: '15+', subtitle: 'Expert Staff'),
     ];
   }

@@ -139,7 +139,7 @@ class _AboutHeroBanner extends StatelessWidget {
                         SizedBox(
                           width: isDesktop ? 600 : double.infinity,
                           child: Text(
-                            'Building Trust Through Expertise, Integrity, and Exceptional Financial Services for Over 2 Years.',
+                            'Building Trust Through Expertise, Integrity, and Exceptional Financial Services for Over 5 Years.',
                             textAlign: isDesktop ? TextAlign.left : TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Metropolis',
@@ -220,7 +220,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SINCE 2024',
+          'SINCE 2020',
           style: TextStyle(
             fontFamily: 'Metropolis',
             color: AppTheme.primaryColor,
@@ -289,7 +289,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
             children: [
               Expanded(
                 child: _AnimatedStatItem(
-                  value: 2,
+                  value: 5,
                   suffix: '+',
                   label: 'Years',
                   animate: isVisible,
