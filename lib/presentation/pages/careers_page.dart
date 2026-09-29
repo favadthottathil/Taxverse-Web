@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -21,13 +22,13 @@ class _CareersPageState extends State<CareersPage> {
   void _handleNavigate(String section) {
     switch (section) {
       case 'HOME':
-        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+        context.go('/');
         break;
       case 'ABOUT US':
-        Navigator.pushReplacementNamed(context, '/about');
+        context.go('/about');
         break;
       case 'SERVICES':
-        Navigator.pushReplacementNamed(context, '/services');
+        context.go('/services');
         break;
       case 'CAREERS':
         _scrollController.animateTo(
@@ -38,7 +39,7 @@ class _CareersPageState extends State<CareersPage> {
         break;
       case 'CONTACT US':
       case 'Contact Us':
-        Navigator.pushReplacementNamed(context, '/contact');
+        context.go('/contact');
         break;
     }
   }

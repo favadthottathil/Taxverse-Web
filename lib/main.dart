@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'data/repositories/content_repository_impl.dart';
@@ -41,40 +42,60 @@ void main() async {
   );
 }
 
+/// Built once so the router (and its navigation state) survives app rebuilds.
+/// Unknown paths fall back to home, matching the previous behaviour.
+final GoRouter _router = GoRouter(
+  onException: (context, state, router) => router.go('/'),
+  routes: [
+    GoRoute(
+      path: '/',
+      pageBuilder: (context, state) =>
+          buildTransitionPage(state, const HomePage()),
+    ),
+    GoRoute(
+      path: '/about',
+      pageBuilder: (context, state) =>
+          buildTransitionPage(state, const AboutUsPage()),
+    ),
+    GoRoute(
+      path: '/services',
+      pageBuilder: (context, state) =>
+          buildTransitionPage(state, const ServicesPage()),
+    ),
+    // GoRoute(
+    //   path: '/careers',
+    //   pageBuilder: (context, state) =>
+    //       buildTransitionPage(state, const CareersPage()),
+    // ),
+    GoRoute(
+      path: '/contact',
+      pageBuilder: (context, state) =>
+          buildTransitionPage(state, const ContactPage()),
+    ),
+    GoRoute(
+      path: '/privacy',
+      pageBuilder: (context, state) =>
+          buildTransitionPage(state, const PrivacyPolicyPage()),
+    ),
+    GoRoute(
+      path: '/terms',
+      pageBuilder: (context, state) =>
+          buildTransitionPage(state, const TermsPage()),
+    ),
+  ],
+);
+
 class TaxverseApp extends StatelessWidget {
   const TaxverseApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       scrollBehavior: const AppScrollBehavior(),
-      initialRoute: '/',
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/about':
-            return buildPageRoute(settings, (context) => const AboutUsPage());
-          case '/services':
-            return buildPageRoute(settings, (context) => const ServicesPage());
-          // case '/careers':
-          //   return buildPageRoute(
-          //       settings, (context) => const CareersPage());
-          case '/contact':
-            return buildPageRoute(settings, (context) => const ContactPage());
-          case '/privacy':
-            return buildPageRoute(
-              settings,
-              (context) => const PrivacyPolicyPage(),
-            );
-          case '/terms':
-            return buildPageRoute(settings, (context) => const TermsPage());
-          case '/':
-          default:
-            return buildPageRoute(settings, (context) => const HomePage());
-        }
-      },
+      routerConfig: _router,
     );
   }
 }

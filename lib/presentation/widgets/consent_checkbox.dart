@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
@@ -59,7 +60,7 @@ class _ConsentContentState extends State<_ConsentContent> {
   );
 
   late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()
-    ..onTap = () => Navigator.of(context).pushNamed('/privacy');
+    ..onTap = () => context.push('/privacy');
 
   @override
   void dispose() {

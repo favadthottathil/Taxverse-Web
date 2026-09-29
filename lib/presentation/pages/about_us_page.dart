@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import '../../core/constants.dart';
@@ -19,13 +20,12 @@ class _AboutUsPageState extends State<AboutUsPage> {
 
   void _handleNavigate(String section) {
     if (section.startsWith('SERVICES|')) {
-      Navigator.pushNamed(context, '/services',
-          arguments: section.split('|')[1]);
+      context.go('/services', extra: section.split('|')[1]);
       return;
     }
     switch (section) {
       case 'HOME':
-        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+        context.go('/');
         break;
       case 'ABOUT US':
         _scrollController.animateTo(
@@ -35,14 +35,14 @@ class _AboutUsPageState extends State<AboutUsPage> {
         );
         break;
       case 'SERVICES':
-        Navigator.pushReplacementNamed(context, '/services');
+        context.go('/services');
         break;
       // case 'CAREERS':
-      //   Navigator.pushReplacementNamed(context, '/careers');
+      //   context.go('/careers');
       //   break;
       case 'CONTACT US':
       case 'Contact Us':
-        Navigator.pushReplacementNamed(context, '/contact');
+        context.go('/contact');
         break;
     }
   }

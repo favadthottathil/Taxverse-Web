@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -133,7 +134,7 @@ class _FooterSectionState extends State<FooterSection> {
                       runSpacing: 12,
                       children: [
                         TapTarget(
-                          onTap: () => Navigator.pushNamed(context, '/privacy'),
+                          onTap: () => context.go('/privacy'),
                           isLink: true,
                           focusColor: Colors.white,
                           child: const Padding(
@@ -145,7 +146,7 @@ class _FooterSectionState extends State<FooterSection> {
                           ),
                         ),
                         TapTarget(
-                          onTap: () => Navigator.pushNamed(context, '/terms'),
+                          onTap: () => context.go('/terms'),
                           isLink: true,
                           focusColor: Colors.white,
                           child: const Padding(

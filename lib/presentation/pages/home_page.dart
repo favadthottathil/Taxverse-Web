@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../widgets/header_nav.dart';
 import 'sections/hero_section.dart';
@@ -58,11 +59,7 @@ class _HomePageState extends State<HomePage> {
   /// the same destinations.
   void _handleNavigate(String section) {
     if (section.startsWith('SERVICES|')) {
-      Navigator.pushNamed(
-        context,
-        '/services',
-        arguments: section.split('|')[1],
-      );
+      context.go('/services', extra: section.split('|')[1]);
       return;
     }
     switch (section) {
@@ -73,7 +70,7 @@ class _HomePageState extends State<HomePage> {
       case 'About':
       case 'About Us':
       case 'ABOUT US':
-        Navigator.pushNamed(context, '/about');
+        context.go('/about');
         break;
       case 'Services':
       case 'Our Services':
@@ -83,7 +80,7 @@ class _HomePageState extends State<HomePage> {
       case 'Contact':
       case 'Contact Us':
       case 'CONTACT US':
-        Navigator.pushNamed(context, '/contact');
+        context.go('/contact');
         break;
     }
   }

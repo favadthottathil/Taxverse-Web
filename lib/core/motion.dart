@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
 /// Shared entrance-motion tokens so every scroll-triggered section animates
 /// with the same cohesive "fade + gentle rise" feel — elements fade in and
@@ -44,20 +45,19 @@ class AppMotion {
       MediaQuery.accessibleNavigationOf(context);
 }
 
-/// Builds the shared page-transition route used for every named-route
-/// navigation, so moving between pages (e.g. Home -> About Us) feels like
-/// part of the same cohesive "fade + gentle rise" motion language as
-/// scroll-entrance animations, instead of the platform-default transition.
-PageRouteBuilder<T> buildPageRoute<T>(
-  RouteSettings settings,
-  Widget Function(BuildContext) builder,
+/// Builds the shared page-transition page used for every go_router route,
+/// so moving between pages (e.g. Home -> About Us) feels like part of the
+/// same cohesive "fade + gentle rise" motion language as scroll-entrance
+/// animations, instead of the platform-default transition.
+CustomTransitionPage<T> buildTransitionPage<T>(
+  GoRouterState state,
+  Widget child,
 ) {
-  return PageRouteBuilder<T>(
-    settings: settings,
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
     transitionDuration: AppMotion.pageDuration,
     reverseTransitionDuration: AppMotion.pageDuration,
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        builder(context),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       if (MediaQuery.disableAnimationsOf(context)) return child;
       final curved = CurvedAnimation(parent: animation, curve: AppMotion.curve);

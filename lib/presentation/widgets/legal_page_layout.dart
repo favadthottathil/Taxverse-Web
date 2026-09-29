@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import '../../core/constants.dart';
@@ -28,23 +29,22 @@ class _LegalPageLayoutState extends State<LegalPageLayout> {
 
   void _handleNavigate(String section) {
     if (section.startsWith('SERVICES|')) {
-      Navigator.pushNamed(context, '/services',
-          arguments: section.split('|')[1]);
+      context.go('/services', extra: section.split('|')[1]);
       return;
     }
     switch (section) {
       case 'HOME':
-        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+        context.go('/');
         break;
       case 'ABOUT US':
-        Navigator.pushReplacementNamed(context, '/about');
+        context.go('/about');
         break;
       case 'SERVICES':
-        Navigator.pushReplacementNamed(context, '/services');
+        context.go('/services');
         break;
       case 'CONTACT US':
       case 'Contact Us':
-        Navigator.pushReplacementNamed(context, '/contact');
+        context.go('/contact');
         break;
     }
   }

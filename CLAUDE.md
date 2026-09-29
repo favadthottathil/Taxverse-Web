@@ -32,14 +32,14 @@ The codebase follows a layered (clean architecture-inspired) structure under `li
   - `pages/sections/` — large composable sections rendered within pages (hero, services, about, approach, industries, testimonials, footer)
   - `widgets/` — shared widgets used across pages (`header_nav.dart`, `consultation_dialog.dart`)
 - `lib/core/`
-  - `motion.dart` — `AppMotion` animation tokens, `riseFade()` widget extension, and `buildPageRoute` (see Animations)
+  - `motion.dart` — `AppMotion` animation tokens, `riseFade()` widget extension, and `buildTransitionPage` (see Animations)
   - `scroll_behavior.dart` — `AppScrollBehavior` applied app-wide in `MaterialApp`
   - `theme.dart` — `AppTheme` defining colors, text theme, button themes (Material 3, font family "Metropolis")
   - `constants.dart` — `AppConstants` (app name, contact info, layout breakpoints)
 
 ### Routing
 
-Routes are resolved in `main.dart` via `MaterialApp.onGenerateRoute` (`/about`, `/services`, `/contact`; `/` and any unknown path fall through to `HomePage`; `/careers` is commented out). Every route is built with `buildPageRoute` (in `core/motion.dart`), a custom `PageRouteBuilder` giving the shared fade + rise transition — use it for any new route instead of `MaterialPageRoute`. `HomePage` is a single scrolling page that uses `GlobalKey`s per section + `ScrollController.ensureVisible` for in-page navigation (smooth-scroll to section) rather than route changes.
+Routes are declared in `main.dart` with `go_router` (`MaterialApp.router`; `/`, `/about`, `/services`, `/contact`, `/privacy`, `/terms`; unknown paths redirect to `/`; `/careers` is commented out). Navigate with `context.go(...)` (`context.push` only where the previous page must be kept, e.g. the consent checkbox link). Each page change adds a browser history entry (go_router default), so the browser back button returns to the previous page and is disabled on a freshly opened home page. Do not call `SystemNavigator.selectSingleEntryHistory()` — it adds an "origin" entry that enables the back arrow on load. Every route is built with `buildTransitionPage` (in `core/motion.dart`), a `CustomTransitionPage` giving the shared fade + rise transition — use it for any new route. `HomePage` is a single scrolling page that uses `GlobalKey`s per section + `ScrollController.ensureVisible` for in-page navigation (smooth-scroll to section) rather than route changes.
 
 ### Responsive Design
 

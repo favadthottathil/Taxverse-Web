@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import '../../core/constants.dart';
@@ -238,12 +239,12 @@ class _ServicesPageState extends State<ServicesPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Apply the route argument once. Depending on the ModalRoute re-fires this
-    // whenever the route's state changes (e.g. a dialog opens on top), which
-    // would otherwise reset the tab the user picked.
+    // Apply the route argument once. Depending on the router state re-fires
+    // this whenever it changes (e.g. a dialog opens on top), which would
+    // otherwise reset the tab the user picked.
     if (_routeArgsApplied) return;
     _routeArgsApplied = true;
-    final args = ModalRoute.of(context)?.settings.arguments;
+    final args = GoRouterState.of(context).extra;
     if (args is String && _categories.contains(args)) {
       _selectedCategory = args;
     }
@@ -274,20 +275,20 @@ class _ServicesPageState extends State<ServicesPage> {
 
     switch (section) {
       case 'HOME':
-        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+        context.go('/');
         break;
       case 'ABOUT US':
-        Navigator.pushReplacementNamed(context, '/about');
+        context.go('/about');
         break;
       case 'SERVICES':
         _scrollToTop();
         break;
       // case 'CAREERS':
-      //   Navigator.pushReplacementNamed(context, '/careers');
+      //   context.go('/careers');
       //   break;
       case 'CONTACT US':
       case 'Contact Us':
-        Navigator.pushReplacementNamed(context, '/contact');
+        context.go('/contact');
         break;
     }
   }

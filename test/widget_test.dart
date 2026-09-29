@@ -32,7 +32,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 250));
     await tester.pumpAndSettle();
 
-    // Verify that our main tagline "ESTABLISHED 2024" is displayed.
-    expect(find.text('ESTABLISHED 2024'), findsWidgets);
+    // Verify that our main tagline "ESTABLISHED 2021" is displayed.
+    expect(find.text('ESTABLISHED 2021'), findsWidgets);
   });
 }
