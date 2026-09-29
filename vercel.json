@@ -2,6 +2,9 @@
   "buildCommand": "git clone --depth 1 -b 3.47.2 https://github.com/flutter/flutter.git _flutter && _flutter/bin/flutter pub get && _flutter/bin/flutter build web --release --no-web-resources-cdn",
   "outputDirectory": "build/web",
   "rewrites": [
+    { "source": "/about", "destination": "/about/index.html" },
+    { "source": "/services", "destination": "/services/index.html" },
+    { "source": "/contact", "destination": "/contact/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
