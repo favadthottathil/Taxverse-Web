@@ -55,7 +55,7 @@ class HeroSection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'ESTABLISHED 2024',
+                              'ESTABLISHED 2021',
                               style: TextStyle(
                                 fontFamily: 'Metropolis',
                                 color: AppTheme.accentColor,

@@ -125,7 +125,7 @@ class _FooterSectionState extends State<FooterSection> {
                   runSpacing: 12,
                   children: [
                     const Text(
-                      '© 2026 Taxverse Business Consultancy. All Rights Reserved.',
+                      '© 2021–2026 Taxverse Business Consultancy. All Rights Reserved.',
                       style: TextStyle(color: Colors.white70),
                     ),
                     Wrap(

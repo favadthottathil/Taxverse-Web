@@ -39,7 +39,7 @@ const _features = <_Feature>[
   _Feature(
     Icons.workspace_premium_outlined,
     '5+ Years of Expertise',
-    'Over 5 years of delivering financial services across diverse industries.',
+    'Established in 2021, delivering financial services across diverse industries.',
     'assets/images/about-1.jpg',
     'Two colleagues reviewing handwritten notes and figures on paper beside open laptops',
   ),

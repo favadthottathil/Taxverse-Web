@@ -220,7 +220,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SINCE 2020',
+          'SINCE 2021',
           style: TextStyle(
             fontFamily: 'Metropolis',
             color: AppTheme.primaryColor,
