@@ -443,7 +443,7 @@ class _HeroBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepaintBoundary(
       child: Image.asset(
-        'assets/images/hero-bg.jpg',
+        'assets/images/hero-bg.webp',
         excludeFromSemantics: true,
         fit: BoxFit.cover,
         width: double.infinity,
