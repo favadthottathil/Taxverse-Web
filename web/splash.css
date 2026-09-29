@@ -27,3 +27,18 @@
   opacity: 0;
   pointer-events: none;
 }
+
+/* Plain-HTML page copy for crawlers (#seo-content in each index.html).
+   Visually hidden but kept in the DOM, the standard "sr-only" pattern, so it
+   never shows over the Flutter app yet stays readable to search engines. */
+#seo-content {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
