@@ -170,13 +170,17 @@ class _ApproachSectionState extends State<ApproachSection> {
                 ).riseFade(isVisible: isVisible),
                 const SizedBox(height: 12),
                 // Heading
-                Text(
-                  'How We Work With You',
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: const Color(0xFF1A1A2E),
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                    fontSize: sizingInformation.isDesktop ? 36 : 28,
+                Semantics(
+                  header: true,
+                  headingLevel: 2,
+                  child: Text(
+                    'How We Work With You',
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      color: const Color(0xFF1A1A2E),
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                      fontSize: sizingInformation.isDesktop ? 36 : 28,
+                    ),
                   ),
                 ).riseFade(isVisible: isVisible, delay: 200.ms),
                 const SizedBox(height: 16),

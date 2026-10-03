@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
+import 'theme.dart';
+
 /// Shared entrance-motion tokens so every scroll-triggered section animates
 /// with the same cohesive "fade + gentle rise" feel — elements fade in and
 /// drift up a small amount with a smooth decelerating glide. Nothing flies in
@@ -49,13 +51,17 @@ class AppMotion {
 /// so moving between pages (e.g. Home -> About Us) feels like part of the
 /// same cohesive "fade + gentle rise" motion language as scroll-entrance
 /// animations, instead of the platform-default transition.
+///
+/// [title] sets the browser tab title while the page is shown; keep it in
+/// sync with the `<title>` in the route's static `web/<route>/index.html`.
 CustomTransitionPage<T> buildTransitionPage<T>(
   GoRouterState state,
-  Widget child,
-) {
+  Widget child, {
+  required String title,
+}) {
   return CustomTransitionPage<T>(
     key: state.pageKey,
-    child: child,
+    child: Title(title: title, color: AppTheme.primaryColor, child: child),
     transitionDuration: AppMotion.pageDuration,
     reverseTransitionDuration: AppMotion.pageDuration,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {

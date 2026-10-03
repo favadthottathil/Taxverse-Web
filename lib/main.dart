@@ -49,18 +49,28 @@ final GoRouter _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      pageBuilder: (context, state) =>
-          buildTransitionPage(state, const HomePage()),
+      pageBuilder: (context, state) => buildTransitionPage(
+        state,
+        const HomePage(),
+        title:
+            'Taxverse | Audit, Tax, GST & Accounting Services in Manjeri, Kerala',
+      ),
     ),
     GoRoute(
       path: '/about',
-      pageBuilder: (context, state) =>
-          buildTransitionPage(state, const AboutUsPage()),
+      pageBuilder: (context, state) => buildTransitionPage(
+        state,
+        const AboutUsPage(),
+        title: 'About Us | Taxverse Business Consultancy, Manjeri, Kerala',
+      ),
     ),
     GoRoute(
       path: '/services',
-      pageBuilder: (context, state) =>
-          buildTransitionPage(state, const ServicesPage()),
+      pageBuilder: (context, state) => buildTransitionPage(
+        state,
+        const ServicesPage(),
+        title: 'Audit, Income Tax, GST, Registration & CFO Services | Taxverse',
+      ),
     ),
     // GoRoute(
     //   path: '/careers',
@@ -69,18 +79,27 @@ final GoRouter _router = GoRouter(
     // ),
     GoRoute(
       path: '/contact',
-      pageBuilder: (context, state) =>
-          buildTransitionPage(state, const ContactPage()),
+      pageBuilder: (context, state) => buildTransitionPage(
+        state,
+        const ContactPage(),
+        title: 'Contact Taxverse | Tax & Accounting Consultants, Manjeri',
+      ),
     ),
     GoRoute(
       path: '/privacy',
-      pageBuilder: (context, state) =>
-          buildTransitionPage(state, const PrivacyPolicyPage()),
+      pageBuilder: (context, state) => buildTransitionPage(
+        state,
+        const PrivacyPolicyPage(),
+        title: 'Privacy Policy | Taxverse Business Consultancy',
+      ),
     ),
     GoRoute(
       path: '/terms',
-      pageBuilder: (context, state) =>
-          buildTransitionPage(state, const TermsPage()),
+      pageBuilder: (context, state) => buildTransitionPage(
+        state,
+        const TermsPage(),
+        title: 'Terms & Conditions | Taxverse Business Consultancy',
+      ),
     ),
   ],
 );

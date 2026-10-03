@@ -53,10 +53,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
       backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
-          HeaderNav(
-            onNavigate: _handleNavigate,
-            activeRoute: 'ABOUT US',
-          ),
+          HeaderNav(onNavigate: _handleNavigate, activeRoute: 'ABOUT US'),
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -96,11 +93,11 @@ class _AboutHeroBanner extends StatelessWidget {
         builder: (context, sizingInformation) {
           final isDesktop = sizingInformation.isDesktop;
           return Align(
-            alignment:
-                isDesktop ? Alignment.centerLeft : Alignment.topCenter,
+            alignment: isDesktop ? Alignment.centerLeft : Alignment.topCenter,
             child: ConstrainedBox(
-              constraints:
-                  const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+              constraints: const BoxConstraints(
+                maxWidth: AppConstants.desktopMaxWidth,
+              ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: ScrollVisibilityDetector(
@@ -114,7 +111,9 @@ class _AboutHeroBanner extends StatelessWidget {
                       children: [
                         Text(
                           'ABOUT US',
-                          textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+                          textAlign: isDesktop
+                              ? TextAlign.left
+                              : TextAlign.center,
                           style: TextStyle(
                             fontFamily: 'Metropolis',
                             color: AppTheme.accentColor,
@@ -124,30 +123,45 @@ class _AboutHeroBanner extends StatelessWidget {
                           ),
                         ).riseFade(isVisible: isVisible),
                         const SizedBox(height: 12),
-                        Text(
-                          'Our Story of Excellence',
-                          textAlign: isDesktop ? TextAlign.left : TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Metropolis',
-                            color: Colors.white,
-                            fontSize: isDesktop ? 42 : 30,
-                            fontWeight: FontWeight.w800,
-                            height: 1.15,
+                        Semantics(
+                          header: true,
+                          headingLevel: 1,
+                          child: Text(
+                            'Our Story of Excellence',
+                            textAlign: isDesktop
+                                ? TextAlign.left
+                                : TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              color: Colors.white,
+                              fontSize: isDesktop ? 42 : 30,
+                              fontWeight: FontWeight.w800,
+                              height: 1.15,
+                            ),
                           ),
-                        ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(1)),
+                        ).riseFade(
+                          isVisible: isVisible,
+                          delay: AppMotion.stagger(1),
+                        ),
                         const SizedBox(height: 16),
                         SizedBox(
                           width: isDesktop ? 600 : double.infinity,
-                          child: Text(
-                            'Building Trust Through Expertise, Integrity, and Exceptional Financial Services for Over 5 Years.',
-                            textAlign: isDesktop ? TextAlign.left : TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Metropolis',
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: isDesktop ? 16 : 15,
-                              height: 1.6,
-                            ),
-                          ).riseFade(isVisible: isVisible, delay: AppMotion.stagger(2)),
+                          child:
+                              Text(
+                                'Building Trust Through Expertise, Integrity, and Exceptional Financial Services for Over 5 Years.',
+                                textAlign: isDesktop
+                                    ? TextAlign.left
+                                    : TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Metropolis',
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: isDesktop ? 16 : 15,
+                                  height: 1.6,
+                                ),
+                              ).riseFade(
+                                isVisible: isVisible,
+                                delay: AppMotion.stagger(2),
+                              ),
                         ),
                       ],
                     );
@@ -179,8 +193,9 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
       child: Center(
         child: ConstrainedBox(
-          constraints:
-              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+          constraints: const BoxConstraints(
+            maxWidth: AppConstants.desktopMaxWidth,
+          ),
           child: ScrollVisibilityDetector(
             detectorKey: const Key('building-trust-section'),
             builder: (context, isVisible, child) {
@@ -193,8 +208,9 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
                         Expanded(flex: 5, child: _buildTextContent(isVisible)),
                         const SizedBox(width: 64),
                         Expanded(
-                            flex: 4,
-                            child: _buildStatsGrid(isVisible, sizingInformation)),
+                          flex: 4,
+                          child: _buildStatsGrid(isVisible, sizingInformation),
+                        ),
                       ],
                     );
                   }
@@ -274,8 +290,7 @@ class _BuildingTrustSectionState extends State<_BuildingTrustSection> {
     );
   }
 
-  Widget _buildStatsGrid(
-      bool isVisible, SizingInformation sizingInformation) {
+  Widget _buildStatsGrid(bool isVisible, SizingInformation sizingInformation) {
     return Container(
       padding: EdgeInsets.all(sizingInformation.isMobile ? 20 : 32),
       decoration: BoxDecoration(
@@ -448,8 +463,9 @@ class _CoreValuesSectionState extends State<_CoreValuesSection> {
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
       child: Center(
         child: ConstrainedBox(
-          constraints:
-              const BoxConstraints(maxWidth: AppConstants.desktopMaxWidth),
+          constraints: const BoxConstraints(
+            maxWidth: AppConstants.desktopMaxWidth,
+          ),
           child: ScrollVisibilityDetector(
             detectorKey: const Key('core-values-header-detector'),
             builder: (context, isVisible, child) {
@@ -546,7 +562,11 @@ class _CoreValuesSectionState extends State<_CoreValuesSection> {
   }
 
   Widget _buildValueCard(
-      IconData icon, String title, String description, int index) {
+    IconData icon,
+    String title,
+    String description,
+    int index,
+  ) {
     return ScrollVisibilityDetector(
       detectorKey: Key('core-value-$index'),
       builder: (context, isVisible, child) {
@@ -566,11 +586,7 @@ class _CoreValuesSectionState extends State<_CoreValuesSection> {
           ),
           child: Column(
             children: [
-              Icon(
-                icon,
-                size: 36,
-                color: AppTheme.primaryColor,
-              ),
+              Icon(icon, size: 36, color: AppTheme.primaryColor),
               const SizedBox(height: 20),
               Text(
                 title,

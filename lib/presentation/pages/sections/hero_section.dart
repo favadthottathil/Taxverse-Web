@@ -18,9 +18,7 @@ class HeroSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(
-        minHeight: MediaQuery.sizeOf(context).height,
-      ),
+      constraints: BoxConstraints(minHeight: MediaQuery.sizeOf(context).height),
       color: AppTheme.backgroundColor,
       child: Stack(
         fit: StackFit.passthrough,
@@ -65,34 +63,38 @@ class HeroSection extends StatelessWidget {
                               ),
                             ).riseFade(isVisible: isVisible),
                             const SizedBox(height: 12),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  const TextSpan(
-                                    text:
-                                        'Simplifying Finances,\nStrengthening ',
-                                  ),
-                                  TextSpan(
-                                    text: 'Businesses',
-                                    style: TextStyle(
-                                      fontFamily: 'Metropolis',
-                                      color: AppTheme.accentColor,
-                                      fontStyle: FontStyle.italic,
+                            Semantics(
+                              header: true,
+                              headingLevel: 1,
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text:
+                                          'Simplifying Finances,\nStrengthening ',
                                     ),
-                                  ),
-                                ],
-                              ),
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                fontFamily: 'Metropolis',
-                                color: Colors.white,
-                                fontSize: sizingInformation.isDesktop
-                                    ? 50
-                                    : sizingInformation.isTablet
-                                    ? 42
-                                    : 34,
-                                height: 1.1,
-                                fontWeight: FontWeight.w800,
+                                    TextSpan(
+                                      text: 'Businesses',
+                                      style: TextStyle(
+                                        fontFamily: 'Metropolis',
+                                        color: AppTheme.accentColor,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontFamily: 'Metropolis',
+                                  color: Colors.white,
+                                  fontSize: sizingInformation.isDesktop
+                                      ? 50
+                                      : sizingInformation.isTablet
+                                      ? 42
+                                      : 34,
+                                  height: 1.1,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ).riseFade(isVisible: isVisible, delay: 200.ms),
                             const SizedBox(height: 16),

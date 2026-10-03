@@ -181,13 +181,17 @@ class _ContactPageState extends State<ContactPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Send Us a Message',
-                style: TextStyle(
-                  fontFamily: 'Metropolis',
-                  color: AppTheme.primaryColor,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
+              Semantics(
+                header: true,
+                headingLevel: 2,
+                child: Text(
+                  'Send Us a Message',
+                  style: TextStyle(
+                    fontFamily: 'Metropolis',
+                    color: AppTheme.primaryColor,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -659,17 +663,21 @@ class _ContactHeroBanner extends StatelessWidget {
                           ),
                         ).riseFade(isVisible: isVisible),
                         const SizedBox(height: 12),
-                        Text(
-                          'Get In Touch',
-                          textAlign: isDesktop
-                              ? TextAlign.left
-                              : TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Metropolis',
-                            color: Colors.white,
-                            fontSize: isDesktop ? 42 : 30,
-                            fontWeight: FontWeight.w800,
-                            height: 1.15,
+                        Semantics(
+                          header: true,
+                          headingLevel: 1,
+                          child: Text(
+                            'Get In Touch',
+                            textAlign: isDesktop
+                                ? TextAlign.left
+                                : TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              color: Colors.white,
+                              fontSize: isDesktop ? 42 : 30,
+                              fontWeight: FontWeight.w800,
+                              height: 1.15,
+                            ),
                           ),
                         ).riseFade(
                           isVisible: isVisible,
