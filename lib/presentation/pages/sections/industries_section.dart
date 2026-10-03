@@ -16,7 +16,6 @@ class IndustriesSection extends StatefulWidget {
 }
 
 class _IndustriesSectionState extends State<IndustriesSection> {
-
   static const List<Map<String, dynamic>> _industries = [
     {
       'icon': Icons.precision_manufacturing_outlined,
@@ -59,77 +58,84 @@ class _IndustriesSectionState extends State<IndustriesSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: const Color(0xFFF7F8FA),
-        padding: const EdgeInsets.symmetric(vertical: 80),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppConstants.desktopMaxWidth,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: ResponsiveBuilder(
-                builder: (context, sizingInformation) {
-                  return Column(
-                    children: [
-                      ScrollVisibilityDetector(
-                        detectorKey: const Key('industries-header-detector'),
-                        builder: (context, isVisible, child) {
-                          return Column(
-                            children: [
-                              // Section label
-                              Text(
-                                'INDUSTRIES',
-                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                      color: Theme.of(context).primaryColor,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 2.0,
-                                    ),
-                              ).riseFade(isVisible: isVisible),
-                              const SizedBox(height: 12),
-                              // Heading
-                              Text(
+      color: const Color(0xFFF7F8FA),
+      padding: const EdgeInsets.symmetric(vertical: 80),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: AppConstants.desktopMaxWidth,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: ResponsiveBuilder(
+              builder: (context, sizingInformation) {
+                return Column(
+                  children: [
+                    ScrollVisibilityDetector(
+                      detectorKey: const Key('industries-header-detector'),
+                      builder: (context, isVisible, child) {
+                        return Column(
+                          children: [
+                            // Section label
+                            Text(
+                              'INDUSTRIES',
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(
+                                    color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 2.0,
+                                  ),
+                            ).riseFade(isVisible: isVisible),
+                            const SizedBox(height: 12),
+                            // Heading
+                            Semantics(
+                              header: true,
+                              headingLevel: 2,
+                              child: Text(
                                 'Industries We Serve',
-                                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                style: Theme.of(context).textTheme.displaySmall
+                                    ?.copyWith(
                                       color: const Color(0xFF1A1A2E),
                                       fontWeight: FontWeight.w800,
                                       height: 1.2,
-                                      fontSize:
-                                          sizingInformation.isDesktop ? 36 : 28,
+                                      fontSize: sizingInformation.isDesktop
+                                          ? 36
+                                          : 28,
                                     ),
-                              )
-                                  .riseFade(isVisible: isVisible, delay: 200.ms),
-                              const SizedBox(height: 16),
-                              // Description
-                              Text(
-                                'Trusted by businesses across sectors — from early-stage startups to\nestablished enterprises.',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      height: 1.6,
-                                      color: AppTheme.textSecondary,
-                                    ),
-                              )
-                                  .riseFade(isVisible: isVisible, delay: 400.ms),
-                            ],
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 56),
-                      // Industry icons grid — column count is fixed per
-                      // breakpoint (2 mobile / 4 tablet / 8 desktop) and each
-                      // item's width is derived from the actual available
-                      // width, so it always lands on exactly that many
-                      // columns instead of however many happen to fit.
-                      LayoutBuilder(builder: (context, constraints) {
+                              ),
+                            ).riseFade(isVisible: isVisible, delay: 200.ms),
+                            const SizedBox(height: 16),
+                            // Description
+                            Text(
+                              'Trusted by businesses across sectors — from early-stage startups to\nestablished enterprises.',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    height: 1.6,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                            ).riseFade(isVisible: isVisible, delay: 400.ms),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 56),
+                    // Industry icons grid — column count is fixed per
+                    // breakpoint (2 mobile / 4 tablet / 8 desktop) and each
+                    // item's width is derived from the actual available
+                    // width, so it always lands on exactly that many
+                    // columns instead of however many happen to fit.
+                    LayoutBuilder(
+                      builder: (context, constraints) {
                         final columns = sizingInformation.isDesktop
                             ? 8
                             : sizingInformation.isTablet
-                                ? 4
-                                : 2;
+                            ? 4
+                            : 2;
                         const spacing = 16.0;
                         final itemWidth =
                             (constraints.maxWidth - spacing * (columns - 1)) /
-                                columns;
+                            columns;
                         return Wrap(
                           alignment: WrapAlignment.center,
                           spacing: spacing,
@@ -145,15 +151,16 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                             );
                           }).toList(),
                         );
-                      }),
-                    ],
-                  );
-                },
-              ),
+                      },
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildIndustryItem(
@@ -186,9 +193,9 @@ class _IndustriesSectionState extends State<IndustriesSection> {
             Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF374151),
-                  ),
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF374151),
+              ),
             ),
           ],
         ).riseFade(isVisible: isVisible, delay: delay);

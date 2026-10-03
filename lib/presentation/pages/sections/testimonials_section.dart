@@ -187,13 +187,17 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                   ).riseFade(isVisible: _isVisible),
                   const SizedBox(height: 12),
                   // Heading
-                  Text(
-                    'What Our Clients Say',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      color: const Color(0xFF1A1A2E),
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
+                  Semantics(
+                    header: true,
+                    headingLevel: 2,
+                    child: Text(
+                      'What Our Clients Say',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        color: const Color(0xFF1A1A2E),
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                      ),
                     ),
                   ).riseFade(isVisible: _isVisible, delay: 100.ms),
                   const SizedBox(height: 56),

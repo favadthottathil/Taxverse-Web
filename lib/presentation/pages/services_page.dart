@@ -722,17 +722,21 @@ class _ServicesHeroBanner extends StatelessWidget {
                           ),
                         ).riseFade(isVisible: isVisible),
                         const SizedBox(height: 12),
-                        Text(
-                          'What We Offer',
-                          textAlign: isDesktop
-                              ? TextAlign.left
-                              : TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Metropolis',
-                            color: Colors.white,
-                            fontSize: isDesktop ? 42 : 30,
-                            fontWeight: FontWeight.w800,
-                            height: 1.15,
+                        Semantics(
+                          header: true,
+                          headingLevel: 1,
+                          child: Text(
+                            'What We Offer',
+                            textAlign: isDesktop
+                                ? TextAlign.left
+                                : TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Metropolis',
+                              color: Colors.white,
+                              fontSize: isDesktop ? 42 : 30,
+                              fontWeight: FontWeight.w800,
+                              height: 1.15,
+                            ),
                           ),
                         ).riseFade(
                           isVisible: isVisible,

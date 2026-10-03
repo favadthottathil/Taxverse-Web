@@ -59,14 +59,18 @@ class ServicesSection extends StatelessWidget {
                             ).riseFade(isVisible: isVisible),
                             const SizedBox(height: 16),
                             // "Our Core Services" heading
-                            Text(
-                              'Our Core Services',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'Metropolis',
-                                color: AppTheme.primaryColor,
-                                fontSize: isDesktop ? 42 : 30,
-                                fontWeight: FontWeight.w600,
+                            Semantics(
+                              header: true,
+                              headingLevel: 2,
+                              child: Text(
+                                'Our Core Services',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Metropolis',
+                                  color: AppTheme.primaryColor,
+                                  fontSize: isDesktop ? 42 : 30,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ).riseFade(isVisible: isVisible),
                             const SizedBox(height: 20),

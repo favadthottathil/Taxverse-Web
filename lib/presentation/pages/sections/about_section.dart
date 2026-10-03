@@ -232,13 +232,17 @@ class _AboutSectionState extends State<AboutSection> {
                 ).riseFade(isVisible: isVisible),
                 const SizedBox(height: 12),
                 // Main heading
-                Text(
-                  'Why Choose Taxverse',
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: const Color(0xFF1A1A2E),
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                    fontSize: sizingInformation.isDesktop ? 36 : 28,
+                Semantics(
+                  header: true,
+                  headingLevel: 2,
+                  child: Text(
+                    'Why Choose Taxverse',
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      color: const Color(0xFF1A1A2E),
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                      fontSize: sizingInformation.isDesktop ? 36 : 28,
+                    ),
                   ),
                 ).riseFade(isVisible: isVisible, delay: 200.ms),
                 const SizedBox(height: 16),
