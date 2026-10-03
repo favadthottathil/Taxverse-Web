@@ -8,6 +8,11 @@ class AppConstants {
   static const String address =
       'UA Mall, Second Floor\nKacherippadi, Manjeri\nMalappuram, Kerala\nPin 676121';
 
+  static const String instagramUrl = 'https://www.instagram.com/infotaxverse/';
+  static const String facebookUrl = 'https://www.facebook.com/info.taxverse';
+  static const String linkedinUrl =
+      'https://www.linkedin.com/company/tax-verse';
+
   static const double desktopMaxWidth = 1200.0;
   static const double tabletMaxWidth = 800.0;
 }

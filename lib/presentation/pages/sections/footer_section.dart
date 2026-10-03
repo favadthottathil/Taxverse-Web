@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -192,7 +193,44 @@ class _FooterSectionState extends State<FooterSection> {
           'Your trusted partner for tax, accounting, compliance, and financial advisory services, delivering reliable solutions that help your business grow with confidence.',
           style: TextStyle(color: Colors.white70, height: 1.6),
         ),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSocialIcon(
+              FontAwesomeIcons.instagram,
+              'Taxverse on Instagram',
+              AppConstants.instagramUrl,
+            ),
+            _buildSocialIcon(
+              FontAwesomeIcons.facebookF,
+              'Taxverse on Facebook',
+              AppConstants.facebookUrl,
+            ),
+            _buildSocialIcon(
+              FontAwesomeIcons.linkedinIn,
+              'Taxverse on LinkedIn',
+              AppConstants.linkedinUrl,
+            ),
+          ],
+        ),
       ],
+    );
+  }
+
+  Widget _buildSocialIcon(FaIconData icon, String label, String url) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: IconButton(
+        onPressed: () => _launchUrl(url, newTab: true),
+        tooltip: label,
+        icon: FaIcon(icon, size: 18),
+        color: AppTheme.highlightColor,
+        style: IconButton.styleFrom(
+          side: const BorderSide(color: Colors.white24),
+          hoverColor: Colors.white10,
+        ),
+      ),
     );
   }
 
@@ -288,9 +326,9 @@ class _FooterSectionState extends State<FooterSection> {
     );
   }
 
-  Future<void> _launchUrl(String url) async {
+  Future<void> _launchUrl(String url, {bool newTab = false}) async {
     final uri = Uri.parse(url);
-    if (!await launchUrl(uri)) {
+    if (!await launchUrl(uri, webOnlyWindowName: newTab ? '_blank' : null)) {
       debugPrint('Could not launch $url');
     }
   }
