@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    Served by Vercel, with a 404 status, for any path that is neither a real
+    file nor one of the rewrites in vercel.json, so search engines see unknown
+    URLs as missing instead of as copies of the home page. It still boots the
+    Flutter app, whose router sends unknown paths to home, so visitors land on
+    the home page as before. flutter build only substitutes $FLUTTER_BASE_HREF
+    in the root index.html, so the base href is hardcoded here.
+  -->
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page Not Found | Taxverse Business Consultancy</title>
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#F8FAFC">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Taxverse">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="stylesheet" href="splash.css">
+</head>
+<body>
+  <div id="app-splash">
+    <div class="spinner"></div>
+  </div>
+
+  <!--
+    Plain-HTML content for crawlers, which read the HTML before (or without)
+    running Flutter. Visually hidden via splash.css.
+  -->
+  <div id="seo-content">
+    <nav aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/about">About Us</a>
+      <a href="/services">Services</a>
+      <a href="/contact">Contact</a>
+    </nav>
+    <main>
+      <h1>Page Not Found</h1>
+      <p>The page you are looking for does not exist or has moved. Go to the <a href="/">Taxverse home page</a>.</p>
+    </main>
+  </div>
+
+  <script src="splash.js"></script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
